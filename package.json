@@ -1,0 +1,19 @@
+{
+  "name": "web-streams-adapter",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MattiasBuelens/web-streams-adapter.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MattiasBuelens/web-streams-adapter/issues"
+  },
+  "homepage": "https://github.com/MattiasBuelens/web-streams-adapter#readme"
+}
