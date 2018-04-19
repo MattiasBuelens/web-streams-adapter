@@ -1,39 +1,58 @@
 import { getBYOBOrDefaultReader } from './utils';
 import assert from './assert';
+import {
+  ReadableByteStreamController,
+  ReadableByteStreamStreamUnderlyingSource,
+  ReadableStream,
+  ReadableStreamBYOBReader,
+  ReadableStreamBYOBRequest,
+  ReadableStreamControllerBase,
+  ReadableStreamDefaultController,
+  ReadableStreamDefaultReader,
+  ReadableStreamDefaultUnderlyingSource,
+  ReadableStreamReaderBase,
+  ReadableStreamUnderlyingSource
+} from '@mattiasbuelens/web-streams-polyfill';
 
-export function createWrappingReadableSource(readable) {
+export type ReadableByteStream = ReadableStream<Uint8Array>;
+
+export function createWrappingReadableSource<R = any>(readable: ReadableStream<R>): ReadableStreamUnderlyingSource<R> {
   // Check if input is a readable byte stream, i.e. it supports BYOB readers
   const { reader, mode } = getBYOBOrDefaultReader(readable);
   reader.releaseLock();
 
-  let source;
+  let source: ReadableStreamUnderlyingSource<R>;
   if (mode === 'byob') {
-    source = new WrappingReadableByteStreamSource(readable);
+    source = new WrappingReadableByteStreamSource(readable as any as ReadableByteStream) as any;
   } else {
-    source = new WrappingReadableStreamDefaultSource(readable);
+    source = new WrappingReadableStreamDefaultSource<R>(readable);
   }
 
   return source;
 }
 
-class AbstractWrappingReadableStreamSource {
+type ReadableStreamReaderMode = 'default' | 'byob';
 
-  constructor(underlyingStream) {
+class AbstractWrappingReadableStreamSource<R> implements ReadableStreamDefaultUnderlyingSource {
+
+  protected readonly _underlyingStream: ReadableStream<R>;
+  protected _underlyingReader: ReadableStreamReaderBase | undefined = undefined;
+  protected _readerMode: ReadableStreamReaderMode | undefined = undefined;
+  protected _readableStreamController: ReadableStreamControllerBase<R> = undefined!;
+  private _pendingRead: Promise<void> | undefined = undefined;
+
+  constructor(underlyingStream: ReadableStream<R>) {
     this._underlyingStream = underlyingStream;
-    this._underlyingReader = undefined;
-    this._readerMode = undefined;
-    this._readableStreamController = undefined;
-    this._pendingRead = undefined;
 
     // always keep a reader attached to detect close/error
     this._attachDefaultReader();
   }
 
-  start(controller) {
+  start(controller: ReadableStreamControllerBase<R>): void {
     this._readableStreamController = controller;
   }
 
-  cancel(reason) {
+  cancel(reason: any): Promise<void> {
     if (this._underlyingReader !== undefined) {
       return this._underlyingReader.cancel(reason);
     } else {
@@ -41,7 +60,7 @@ class AbstractWrappingReadableStreamSource {
     }
   }
 
-  _attachDefaultReader() {
+  protected _attachDefaultReader(): void {
     if (this._readerMode === 'default') {
       return;
     }
@@ -53,7 +72,7 @@ class AbstractWrappingReadableStreamSource {
     this._attachReader(reader);
   }
 
-  _attachReader(reader) {
+  protected _attachReader(reader: ReadableStreamReaderBase): void {
     assert(this._underlyingReader === undefined);
 
     this._underlyingReader = reader;
@@ -71,7 +90,7 @@ class AbstractWrappingReadableStreamSource {
       .catch(() => {});
   }
 
-  _detachReader() {
+  protected _detachReader(): void {
     if (this._underlyingReader === undefined) {
       return;
     }
@@ -81,11 +100,11 @@ class AbstractWrappingReadableStreamSource {
     this._readerMode = undefined;
   }
 
-  _pullWithDefaultReader() {
+  protected _pullWithDefaultReader(): Promise<void> {
     this._attachDefaultReader();
 
     // TODO Backpressure?
-    const read = this._underlyingReader.read()
+    const read = (this._underlyingReader! as ReadableStreamDefaultReader).read()
       .then(({ value, done }) => {
         const controller = this._readableStreamController;
         if (done) {
@@ -99,8 +118,8 @@ class AbstractWrappingReadableStreamSource {
     return read;
   }
 
-  _setPendingRead(readPromise) {
-    let pendingRead;
+  protected _setPendingRead(readPromise: Promise<void>) {
+    let pendingRead: Promise<void>;
     const finishRead = () => {
       if (this._pendingRead === pendingRead) {
         this._pendingRead = undefined;
@@ -109,7 +128,7 @@ class AbstractWrappingReadableStreamSource {
     this._pendingRead = pendingRead = readPromise.then(finishRead, finishRead);
   }
 
-  _finishPendingRead() {
+  private _finishPendingRead(): Promise<void> | undefined {
     if (!this._pendingRead) {
       return undefined;
     }
@@ -119,31 +138,35 @@ class AbstractWrappingReadableStreamSource {
 
 }
 
-class WrappingReadableStreamDefaultSource extends AbstractWrappingReadableStreamSource {
+class WrappingReadableStreamDefaultSource<R> extends AbstractWrappingReadableStreamSource<R> {
 
-  pull() {
+  protected _readableStreamController!: ReadableStreamDefaultController<R>;
+
+  pull(): Promise<void> {
     return this._pullWithDefaultReader();
   }
 
 }
 
-function toUint8Array(view) {
+function toUint8Array(view: ArrayBufferView): Uint8Array {
   return new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
 }
 
-function copyArrayBufferView(from, to) {
+function copyArrayBufferView(from: ArrayBufferView, to: ArrayBufferView) {
   const fromArray = toUint8Array(from);
   const toArray = toUint8Array(to);
   toArray.set(fromArray, 0);
 }
 
-class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSource {
+class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSource<Uint8Array> implements ReadableByteStreamStreamUnderlyingSource {
 
-  constructor(underlyingStream) {
+  protected _readableStreamController!: ReadableByteStreamController;
+
+  constructor(underlyingStream: ReadableStream<Uint8Array>) {
     super(underlyingStream);
   }
 
-  get type() {
+  get type(): 'bytes' {
     return 'bytes';
   }
 
@@ -159,7 +182,7 @@ class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSou
     this._attachReader(reader);
   }
 
-  pull() {
+  pull(): Promise<void> {
     const byobRequest = this._readableStreamController.byobRequest;
     if (byobRequest !== undefined) {
       return this._pullWithByobRequest(byobRequest);
@@ -168,7 +191,7 @@ class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSou
     }
   }
 
-  _pullWithByobRequest(byobRequest) {
+  _pullWithByobRequest(byobRequest: ReadableStreamBYOBRequest): Promise<void> {
     this._attachByobReader();
 
     // reader.read(view) detaches the input view, therefore we cannot pass byobRequest.view directly
@@ -176,7 +199,7 @@ class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSou
     const buffer = new Uint8Array(byobRequest.view.byteLength);
 
     // TODO Backpressure?
-    const read = this._underlyingReader.read(buffer)
+    const read = (this._underlyingReader! as ReadableStreamBYOBReader).read(buffer)
       .then(({ value, done }) => {
         const controller = this._readableStreamController;
         if (done) {

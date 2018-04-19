@@ -1,23 +1,36 @@
-export function createWrappingWritableSink(writable) {
+import {
+  WritableStream,
+  WritableStreamDefaultController,
+  WritableStreamDefaultWriter,
+  WritableStreamUnderlyingSink
+} from '@mattiasbuelens/web-streams-polyfill';
+
+export function createWrappingWritableSink<W = any>(writable: WritableStream<W>): WritableStreamUnderlyingSink<W> {
   const writer = writable.getWriter();
   return new WrappingWritableStreamSink(writer);
 }
 
-class WrappingWritableStreamSink {
+type WritableStreamState = 'writable' | 'erroring' | 'errored' | 'closed';
 
-  constructor(underlyingWriter) {
+class WrappingWritableStreamSink<W> implements WritableStreamUnderlyingSink<W> {
+
+  protected readonly _underlyingWriter: WritableStreamDefaultWriter<W>;
+  private _writableStreamController: WritableStreamDefaultController = undefined!;
+  private _pendingWrite: Promise<void> | undefined = undefined;
+  private _state: WritableStreamState = 'writable';
+  private _storedError: any = undefined;
+  private _errorPromise: Promise<void>;
+  private _errorPromiseReject!: (reason: any) => void;
+
+  constructor(underlyingWriter: WritableStreamDefaultWriter<W>) {
     this._underlyingWriter = underlyingWriter;
-    this._writableStreamController = undefined;
-    this._pendingWrite = undefined;
-    this._state = 'writable';
-    this._storedError = undefined;
-    this._errorPromise = new Promise((resolve, reject) => {
+    this._errorPromise = new Promise<void>((resolve, reject) => {
       this._errorPromiseReject = reject;
     });
     this._errorPromise.catch(() => {});
   }
 
-  start(controller) {
+  start(controller: WritableStreamDefaultController): void {
     this._writableStreamController = controller;
 
     this._underlyingWriter.closed
@@ -27,7 +40,7 @@ class WrappingWritableStreamSink {
       .catch(reason => this._finishErroring(reason));
   }
 
-  write(chunk) {
+  write(chunk: W): Promise<void> {
     const writer = this._underlyingWriter;
 
     // Detect past errors
@@ -48,14 +61,14 @@ class WrappingWritableStreamSink {
     return write;
   }
 
-  close() {
+  close(): Promise<void> {
     if (this._pendingWrite === undefined) {
       return this._underlyingWriter.close();
     }
     return this._finishPendingWrite().then(() => this.close());
   }
 
-  abort(reason) {
+  abort(reason: any): void | Promise<void> {
     if (this._state === 'errored') {
       return undefined;
     }
@@ -64,8 +77,8 @@ class WrappingWritableStreamSink {
     return writer.abort(reason);
   }
 
-  _setPendingWrite(writePromise) {
-    let pendingWrite;
+  private _setPendingWrite(writePromise: Promise<void>) {
+    let pendingWrite: Promise<void>;
     const finishWrite = () => {
       if (this._pendingWrite === pendingWrite) {
         this._pendingWrite = undefined;
@@ -74,7 +87,7 @@ class WrappingWritableStreamSink {
     this._pendingWrite = pendingWrite = writePromise.then(finishWrite, finishWrite);
   }
 
-  _finishPendingWrite() {
+  private _finishPendingWrite(): Promise<void> {
     if (this._pendingWrite === undefined) {
       return Promise.resolve();
     }
@@ -82,7 +95,7 @@ class WrappingWritableStreamSink {
     return this._pendingWrite.then(afterWrite, afterWrite);
   }
 
-  _startErroring(reason) {
+  private _startErroring(reason: any): void {
     if (this._state === 'writable') {
       this._state = 'erroring';
       this._storedError = reason;
@@ -98,7 +111,7 @@ class WrappingWritableStreamSink {
     }
   }
 
-  _finishErroring(reason) {
+  private _finishErroring(reason: any): void {
     if (this._state === 'writable') {
       this._startErroring(reason);
     }
