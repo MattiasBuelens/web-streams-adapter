@@ -1,5 +1,5 @@
 import { getBYOBOrDefaultReader } from './utils';
-import assert from '../polyfill/assert';
+import assert from './assert';
 
 export function createWrappingReadableSource(readable) {
   // Check if input is a readable byte stream, i.e. it supports BYOB readers

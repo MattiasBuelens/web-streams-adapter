@@ -1,4 +1,4 @@
-import { typeIsObject } from '../polyfill/helpers';
+import { typeIsObject } from './helpers';
 
 function isStreamConstructor(ctor) {
   if (typeof ctor !== 'function') {
