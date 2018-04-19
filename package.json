@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/MattiasBuelens/web-streams-adapter/issues"
   },
-  "homepage": "https://github.com/MattiasBuelens/web-streams-adapter#readme"
+  "homepage": "https://github.com/MattiasBuelens/web-streams-adapter#readme",
+  "devDependencies": {
+    "typescript": "^2.8.3"
+  }
 }
