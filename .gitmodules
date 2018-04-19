@@ -1,0 +1,3 @@
+[submodule "web-platform-tests"]
+	path = web-platform-tests
+	url = https://github.com/MattiasBuelens/web-platform-tests.git
