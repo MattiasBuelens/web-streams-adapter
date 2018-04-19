@@ -16,7 +16,11 @@
     "url": "https://github.com/MattiasBuelens/web-streams-adapter/issues"
   },
   "homepage": "https://github.com/MattiasBuelens/web-streams-adapter#readme",
+  "peerDependencies": {
+    "@mattiasbuelens/web-streams-polyfill": "^0.1.0-alpha.1"
+  },
   "devDependencies": {
+    "@mattiasbuelens/web-streams-polyfill": "^0.1.0-alpha.1",
     "typescript": "^2.8.3"
   }
 }
