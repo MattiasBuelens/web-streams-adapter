@@ -1,15 +1,16 @@
 import {
   QueuingStrategy,
-  WritableStream,
+  WritableStream, WritableStreamConstructor,
   WritableStreamDefaultWriter,
   WritableStreamUnderlyingSink
 } from '@mattiasbuelens/web-streams-polyfill';
 import { createWrappingWritableSink } from '../';
 
-export class WrappingWritableStream<W = any> extends WritableStream<W> {
+export function createWrappingWritableStream(baseClass: WritableStreamConstructor): WritableStreamConstructor {
+const wrappingClass = class WrappingWritableStream<W = any> extends WritableStream<W> {
 
   constructor(underlyingSink: WritableStreamUnderlyingSink<W> = {}, { size, highWaterMark }: Partial<QueuingStrategy> = {}) {
-    const wrappedWritableStream = new WritableStream<W>(underlyingSink, { highWaterMark: 1 });
+    const wrappedWritableStream = new baseClass<W>(underlyingSink, { highWaterMark: 1 });
     underlyingSink = createWrappingWritableSink(wrappedWritableStream);
 
     super(underlyingSink, { size, highWaterMark });
@@ -27,6 +28,9 @@ export class WrappingWritableStream<W = any> extends WritableStream<W> {
     return super.getWriter();
   }
 
-}
+};
 
-Object.defineProperty(WrappingWritableStream, 'name', { value: 'WritableStream' });
+Object.defineProperty(wrappingClass, 'name', { value: 'WritableStream' });
+
+return wrappingClass;
+}

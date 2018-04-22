@@ -2,6 +2,7 @@ import {
   QueuingStrategy,
   ReadableStream,
   ReadableStreamBYOBReader,
+  ReadableStreamConstructor,
   ReadableStreamDefaultReader,
   ReadableStreamPipeOptions,
   ReadableStreamUnderlyingSource,
@@ -10,11 +11,12 @@ import {
 } from '@mattiasbuelens/web-streams-polyfill';
 import { createWrappingReadableSource } from '../';
 
-export class WrappingReadableStream<R = any> extends ReadableStream<R> {
+export function createWrappingReadableStream(baseClass: ReadableStreamConstructor): ReadableStreamConstructor {
+const wrappingClass = class WrappingReadableStream<R = any> extends baseClass {
 
   constructor(underlyingSource: ReadableStreamUnderlyingSource<R> = {}, { size, highWaterMark }: Partial<QueuingStrategy> = {}, wrapped = false) {
     if (!wrapped) {
-      const wrappedReadableStream = new ReadableStream(underlyingSource, { size, highWaterMark });
+      const wrappedReadableStream = new baseClass<R>(underlyingSource, { size, highWaterMark });
       underlyingSource = createWrappingReadableSource(wrappedReadableStream);
       size = undefined;
       highWaterMark = 0;
@@ -52,6 +54,9 @@ export class WrappingReadableStream<R = any> extends ReadableStream<R> {
     const wrapped2 = new WrappingReadableStream<R>(createWrappingReadableSource<R>(branch2), {}, true);
     return [wrapped1, wrapped2];
   }
-}
+};
 
-Object.defineProperty(WrappingReadableStream, 'name', { value: 'ReadableStream' });
+Object.defineProperty(wrappingClass, 'name', { value: 'ReadableStream' });
+
+return wrappingClass as ReadableStreamConstructor;
+}

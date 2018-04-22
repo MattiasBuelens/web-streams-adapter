@@ -3,9 +3,17 @@
 const path = require('path');
 const wptRunner = require('wpt-runner');
 const minimatch = require('minimatch');
-const { WrappingReadableStream } = require('./wrapping-readable-stream');
-const { WrappingWritableStream } = require('./wrapping-writable-stream');
-const { ByteLengthQueuingStrategy, CountQueuingStrategy, TransformStream } = require('@mattiasbuelens/web-streams-polyfill/dist/polyfill.wpt');
+const { createWrappingReadableStream } = require('./wrapping-readable-stream');
+const { createWrappingWritableStream } = require('./wrapping-writable-stream');
+const {
+  ReadableStream,
+  WritableStream,
+  ByteLengthQueuingStrategy,
+  CountQueuingStrategy,
+  TransformStream
+} = require('@mattiasbuelens/web-streams-polyfill/dist/polyfill.wpt');
+const WrappingReadableStream = createWrappingReadableStream(ReadableStream);
+const WrappingWritableStream = createWrappingWritableStream(WritableStream);
 
 const testsPath = path.resolve(__dirname, '../web-platform-tests/streams');
 
