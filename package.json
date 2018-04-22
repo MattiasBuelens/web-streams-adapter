@@ -2,9 +2,10 @@
   "name": "web-streams-adapter",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "dist/web-streams-adapter.js",
+  "module": "dist/web-streams-adapter.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup -c"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,8 @@
   },
   "devDependencies": {
     "@mattiasbuelens/web-streams-polyfill": "^0.1.0-alpha.1",
+    "rollup": "^0.58.1",
+    "rollup-plugin-typescript2": "^0.13.0",
     "typescript": "^2.8.3"
   }
 }
