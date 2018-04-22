@@ -10,7 +10,8 @@ import { createWrappingWritableSink } from '../';
 export function createWrappingWritableStream(baseClass: WritableStreamConstructor): WritableStreamConstructor {
   const wrappingClass = class WrappingWritableStream<W = any> extends WritableStream<W> {
 
-    constructor(underlyingSink: WritableStreamUnderlyingSink<W> = {}, { size, highWaterMark }: Partial<QueuingStrategy> = {}) {
+    constructor(underlyingSink: WritableStreamUnderlyingSink<W> = {},
+                { size, highWaterMark }: Partial<QueuingStrategy> = {}) {
       const wrappedWritableStream = new baseClass<W>(underlyingSink, { highWaterMark: 1 });
       underlyingSink = createWrappingWritableSink(wrappedWritableStream);
 

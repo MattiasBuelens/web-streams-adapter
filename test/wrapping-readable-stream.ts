@@ -14,7 +14,9 @@ import { createWrappingReadableSource } from '../';
 export function createWrappingReadableStream(baseClass: ReadableStreamConstructor): ReadableStreamConstructor {
   const wrappingClass = class WrappingReadableStream<R = any> extends baseClass {
 
-    constructor(underlyingSource: ReadableStreamUnderlyingSource<R> = {}, { size, highWaterMark }: Partial<QueuingStrategy> = {}, wrapped = false) {
+    constructor(underlyingSource: ReadableStreamUnderlyingSource<R> = {},
+                { size, highWaterMark }: Partial<QueuingStrategy> = {},
+                wrapped = false) {
       if (!wrapped) {
         const wrappedReadableStream = new baseClass<R>(underlyingSource, { size, highWaterMark });
         underlyingSource = createWrappingReadableSource(wrappedReadableStream);
