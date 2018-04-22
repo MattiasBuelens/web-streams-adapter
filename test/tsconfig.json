@@ -1,6 +1,10 @@
 {
   "extends": "../src/tsconfig.json",
   "compilerOptions": {
-    "target": "es2015"
+    "target": "es2015",
+    "module": "commonjs",
+    "lib": [
+      "es2015"
+    ]
   }
 }

@@ -10,7 +10,8 @@
     "types/"
   ],
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "test": "ts-node --project test/tsconfig.json test/run-web-platform-tests.ts"
   },
   "repository": {
     "type": "git",
@@ -27,8 +28,13 @@
   },
   "devDependencies": {
     "@mattiasbuelens/web-streams-polyfill": "^0.1.0-alpha.1",
+    "@types/minimatch": "^3.0.3",
+    "@types/node": "^9.6.6",
+    "minimatch": "^3.0.4",
     "rollup": "^0.58.1",
     "rollup-plugin-typescript2": "^0.13.0",
-    "typescript": "^2.8.3"
+    "ts-node": "^6.0.0",
+    "typescript": "^2.8.3",
+    "wpt-runner": "^2.4.0"
   }
 }
