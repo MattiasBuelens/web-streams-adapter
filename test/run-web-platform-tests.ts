@@ -28,17 +28,17 @@ function filter(testPath: string): boolean {
 // wpt-runner does not yet support unhandled rejection tracking a la
 // https://github.com/w3c/testharness.js/commit/7716e2581a86dfd9405a9c00547a7504f0c7fe94
 // So we emulate it with Node.js events
-const rejections = new Map();
-process.on('unhandledRejection', (reason, promise) => {
+const rejections = new Map<Promise<any>, Error>();
+process.on('unhandledRejection', (reason: Error, promise: Promise<any>) => {
   rejections.set(promise, reason);
 });
 
-process.on('rejectionHandled', promise => {
+process.on('rejectionHandled', (promise: Promise<any>) => {
   rejections.delete(promise);
 });
 
 wptRunner(testsPath, { rootURL: 'streams/', setup, filter })
-  .then((failures: any) => {
+  .then((failures: number) => {
     process.exitCode = failures;
 
     if (rejections.size > 0) {
