@@ -4,6 +4,7 @@
   "description": "",
   "main": "dist/web-streams-adapter.js",
   "module": "dist/web-streams-adapter.mjs",
+  "types": "types/index.d.ts",
   "scripts": {
     "build": "rollup -c"
   },
