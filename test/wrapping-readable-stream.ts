@@ -48,8 +48,8 @@ export class WrappingReadableStream<R = any> extends ReadableStream<R> {
   tee(): [WrappingReadableStream<R>, WrappingReadableStream<R>] {
     const [branch1, branch2] = super.tee();
 
-    const wrapped1 = new WrappingReadableStream<R>(createWrappingReadableSource(branch1), {}, true);
-    const wrapped2 = new WrappingReadableStream<R>(createWrappingReadableSource(branch2), {}, true);
+    const wrapped1 = new WrappingReadableStream<R>(createWrappingReadableSource<R>(branch1), {}, true);
+    const wrapped2 = new WrappingReadableStream<R>(createWrappingReadableSource<R>(branch2), {}, true);
     return [wrapped1, wrapped2];
   }
 }
