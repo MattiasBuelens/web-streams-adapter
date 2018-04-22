@@ -1,5 +1,10 @@
-import { QueuingStrategy, WritableStream, WritableStreamUnderlyingSink } from '@mattiasbuelens/web-streams-polyfill';
-import { createWrappingWritableSink } from '../src';
+import {
+  QueuingStrategy,
+  WritableStream,
+  WritableStreamDefaultWriter,
+  WritableStreamUnderlyingSink
+} from '@mattiasbuelens/web-streams-polyfill';
+import { createWrappingWritableSink } from '../';
 
 export class WrappingWritableStream<W = any> extends WritableStream<W> {
 
@@ -18,7 +23,7 @@ export class WrappingWritableStream<W = any> extends WritableStream<W> {
     return super.abort(reason);
   }
 
-  getWriter() {
+  getWriter(): WritableStreamDefaultWriter<W> {
     return super.getWriter();
   }
 

@@ -8,7 +8,7 @@ import {
   ReadableWritableStreamPair,
   WritableStream
 } from '@mattiasbuelens/web-streams-polyfill';
-import { createWrappingReadableSource } from '../src';
+import { createWrappingReadableSource } from '../';
 
 export class WrappingReadableStream<R = any> extends ReadableStream<R> {
 
@@ -37,7 +37,7 @@ export class WrappingReadableStream<R = any> extends ReadableStream<R> {
     return super.getReader(options as any);
   }
 
-  pipeThrough<T = any>(pair: ReadableWritableStreamPair<T, R>, options?: ReadableStreamPipeOptions) {
+  pipeThrough<T = any>(pair: ReadableWritableStreamPair<T, R>, options?: ReadableStreamPipeOptions): ReadableStream<T> {
     return super.pipeThrough(pair, options);
   }
 
