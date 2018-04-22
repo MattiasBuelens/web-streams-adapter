@@ -162,7 +162,7 @@ class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSou
 
   protected _readableStreamController!: ReadableByteStreamController;
 
-  constructor(underlyingStream: ReadableStream<Uint8Array>) {
+  constructor(underlyingStream: ReadableByteStream) {
     super(underlyingStream);
   }
 
