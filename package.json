@@ -5,6 +5,10 @@
   "main": "dist/web-streams-adapter.js",
   "module": "dist/web-streams-adapter.mjs",
   "types": "types/index.d.ts",
+  "files": [
+    "dist/",
+    "types/"
+  ],
   "scripts": {
     "build": "rollup -c"
   },
