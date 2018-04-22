@@ -3,7 +3,9 @@
 const path = require('path');
 const wptRunner = require('wpt-runner');
 const minimatch = require('minimatch');
-const { ReadableStream, WritableStream, ByteLengthQueuingStrategy, CountQueuingStrategy, TransformStream } = require('@mattiasbuelens/web-streams-polyfill/dist/polyfill.wpt');
+const { WrappingReadableStream } = require('./wrapping-readable-stream');
+const { WrappingWritableStream } = require('./wrapping-writable-stream');
+const { ByteLengthQueuingStrategy, CountQueuingStrategy, TransformStream } = require('@mattiasbuelens/web-streams-polyfill/dist/polyfill.wpt');
 
 const testsPath = path.resolve(__dirname, '../web-platform-tests/streams');
 
@@ -50,8 +52,8 @@ function setup(window: any) {
   // Necessary so that we can send test-realm promises to the jsdom-realm implementation without causing assimilation.
   window.Promise = Promise;
 
-  window.ReadableStream = ReadableStream;
-  window.WritableStream = WritableStream;
+  window.ReadableStream = WrappingReadableStream;
+  window.WritableStream = WrappingWritableStream;
   window.TransformStream = TransformStream;
   window.ByteLengthQueuingStrategy = ByteLengthQueuingStrategy;
   window.CountQueuingStrategy = CountQueuingStrategy;
