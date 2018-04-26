@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "rollup -c",
-    "test": "ts-node --project test/tsconfig.json test/run-web-platform-tests.ts"
+    "test": "ts-node --expose_gc --project test/tsconfig.json test/run-web-platform-tests.ts"
   },
   "repository": {
     "type": "git",
