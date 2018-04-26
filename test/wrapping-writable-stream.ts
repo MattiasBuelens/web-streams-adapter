@@ -1,6 +1,5 @@
 import {
   QueuingStrategy,
-  WritableStream,
   WritableStreamConstructor,
   WritableStreamDefaultWriter,
   WritableStreamUnderlyingSink
@@ -8,7 +7,7 @@ import {
 import { createWrappingWritableSink } from '../';
 
 export function createWrappingWritableStream(baseClass: WritableStreamConstructor): WritableStreamConstructor {
-  const wrappingClass = class WrappingWritableStream<W = any> extends WritableStream<W> {
+  const wrappingClass = class WrappingWritableStream<W = any> extends baseClass {
 
     constructor(underlyingSink: WritableStreamUnderlyingSink<W> = {},
                 { size, highWaterMark }: Partial<QueuingStrategy> = {}) {
