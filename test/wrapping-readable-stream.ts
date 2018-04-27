@@ -19,7 +19,7 @@ export function createWrappingReadableStream(baseClass: ReadableStreamConstructo
                 wrapped = false) {
       if (!wrapped) {
         const wrappedReadableStream = new baseClass<R>(underlyingSource, { size, highWaterMark });
-        underlyingSource = createWrappingReadableSource(wrappedReadableStream);
+        underlyingSource = createWrappingReadableSource(wrappedReadableStream, { type: underlyingSource.type });
         size = undefined;
         highWaterMark = 0;
       }

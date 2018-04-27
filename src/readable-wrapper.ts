@@ -17,12 +17,16 @@ import {
 
 export type ReadableByteStream = ReadableStream<Uint8Array>;
 
-export function createWrappingReadableSource<R = any>(readable: ReadableStream<R>): ReadableStreamUnderlyingSource<R> {
+export interface WrappingReadableSourceOptions {
+  type?: 'bytes';
+}
+
+export function createWrappingReadableSource<R = any>(readable: ReadableStream<R>, { type }: WrappingReadableSourceOptions = {}): ReadableStreamUnderlyingSource<R> {
   assert(isReadableStream(readable));
   assert(readable.locked === false);
 
   let source: ReadableStreamUnderlyingSource<R>;
-  if (supportsByobReader(readable)) {
+  if (type === 'bytes') {
     source = new WrappingReadableByteStreamSource(readable as any as ReadableByteStream) as any;
   } else {
     source = new WrappingReadableStreamDefaultSource<R>(readable);
@@ -161,9 +165,12 @@ function copyArrayBufferView(from: ArrayBufferView, to: ArrayBufferView) {
 class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSource<Uint8Array> implements ReadableByteStreamStreamUnderlyingSource {
 
   protected _readableStreamController!: ReadableByteStreamController;
+  protected readonly _supportsByob: boolean;
 
   constructor(underlyingStream: ReadableByteStream) {
+    const supportsByob = supportsByobReader(underlyingStream);
     super(underlyingStream);
+    this._supportsByob = supportsByob;
   }
 
   get type(): 'bytes' {
@@ -175,6 +182,7 @@ class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSou
       return;
     }
 
+    assert(this._supportsByob);
     this._detachReader();
 
     const reader = this._underlyingStream.getReader({ mode: 'byob' });
@@ -183,12 +191,14 @@ class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSou
   }
 
   pull(): Promise<void> {
-    const byobRequest = this._readableStreamController.byobRequest;
-    if (byobRequest !== undefined) {
-      return this._pullWithByobRequest(byobRequest);
-    } else {
-      return this._pullWithDefaultReader();
+    if (this._supportsByob) {
+      const byobRequest = this._readableStreamController.byobRequest;
+      if (byobRequest !== undefined) {
+        return this._pullWithByobRequest(byobRequest);
+      }
     }
+
+    return this._pullWithDefaultReader();
   }
 
   _pullWithByobRequest(byobRequest: ReadableStreamBYOBRequest): Promise<void> {

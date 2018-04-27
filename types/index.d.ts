@@ -5,6 +5,10 @@ import {
   WritableStreamUnderlyingSink
 } from '@mattiasbuelens/web-streams-polyfill';
 
-export declare function createWrappingReadableSource<R = any>(readable: ReadableStream<R>): ReadableStreamUnderlyingSource<R>;
+export interface WrappingReadableSourceOptions {
+  type?: 'bytes';
+}
+
+export declare function createWrappingReadableSource<R = any>(readable: ReadableStream<R>, options?: WrappingReadableSourceOptions): ReadableStreamUnderlyingSource<R>;
 
 export declare function createWrappingWritableSink<W = any>(writable: WritableStream<W>): WritableStreamUnderlyingSink<W>;
