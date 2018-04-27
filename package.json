@@ -29,11 +29,11 @@
   "devDependencies": {
     "@mattiasbuelens/web-streams-polyfill": "^0.1.0-alpha.1",
     "@types/minimatch": "^3.0.3",
-    "@types/node": "^9.6.6",
+    "@types/node": "^9.6.7",
     "minimatch": "^3.0.4",
-    "rollup": "^0.58.1",
+    "rollup": "^0.58.2",
     "rollup-plugin-typescript2": "^0.13.0",
-    "ts-node": "^6.0.0",
+    "ts-node": "^6.0.1",
     "typescript": "^2.8.3",
     "wpt-runner": "^2.4.0"
   }
