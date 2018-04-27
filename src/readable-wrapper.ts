@@ -1,5 +1,5 @@
-import { getBYOBOrDefaultReader } from './utils';
 import assert from './assert';
+import { supportsByobReader } from './utils';
 import {
   ReadableByteStreamController,
   ReadableByteStreamStreamUnderlyingSource,
@@ -17,12 +17,8 @@ import {
 export type ReadableByteStream = ReadableStream<Uint8Array>;
 
 export function createWrappingReadableSource<R = any>(readable: ReadableStream<R>): ReadableStreamUnderlyingSource<R> {
-  // Check if input is a readable byte stream, i.e. it supports BYOB readers
-  const { reader, mode } = getBYOBOrDefaultReader(readable);
-  reader.releaseLock();
-
   let source: ReadableStreamUnderlyingSource<R>;
-  if (mode === 'byob') {
+  if (supportsByobReader(readable)) {
     source = new WrappingReadableByteStreamSource(readable as any as ReadableByteStream) as any;
   } else {
     source = new WrappingReadableStreamDefaultSource<R>(readable);
