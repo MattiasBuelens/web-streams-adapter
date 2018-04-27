@@ -1,3 +1,5 @@
+import assert from './assert';
+import { isWritableStream } from './checks';
 import {
   WritableStream,
   WritableStreamDefaultController,
@@ -6,6 +8,9 @@ import {
 } from '@mattiasbuelens/web-streams-polyfill';
 
 export function createWrappingWritableSink<W = any>(writable: WritableStream<W>): WritableStreamUnderlyingSink<W> {
+  assert(isWritableStream(writable));
+  assert(writable.locked === false);
+
   const writer = writable.getWriter();
   return new WrappingWritableStreamSink(writer);
 }

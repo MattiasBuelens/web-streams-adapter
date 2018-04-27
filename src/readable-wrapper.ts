@@ -1,4 +1,5 @@
 import assert from './assert';
+import { isReadableStream } from './checks';
 import { supportsByobReader } from './utils';
 import {
   ReadableByteStreamController,
@@ -17,6 +18,9 @@ import {
 export type ReadableByteStream = ReadableStream<Uint8Array>;
 
 export function createWrappingReadableSource<R = any>(readable: ReadableStream<R>): ReadableStreamUnderlyingSource<R> {
+  assert(isReadableStream(readable));
+  assert(readable.locked === false);
+
   let source: ReadableStreamUnderlyingSource<R>;
   if (supportsByobReader(readable)) {
     source = new WrappingReadableByteStreamSource(readable as any as ReadableByteStream) as any;
