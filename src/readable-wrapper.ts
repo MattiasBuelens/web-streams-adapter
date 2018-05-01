@@ -28,6 +28,7 @@ export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor)
   const byteSourceSupported = supportsByteSource(ctor);
 
   return <R>(readable: ReadableStreamLike<R>, { type }: WrappingReadableSourceOptions = {}) => {
+    type = parseReadableType(type);
     if (type === 'bytes' && !byteSourceSupported) {
       type = undefined;
     }
@@ -40,6 +41,7 @@ export function createWrappingReadableSource<R = any>(readable: ReadableStreamLi
   assert(isReadableStream(readable));
   assert(readable.locked === false);
 
+  type = parseReadableType(type);
   let source: ReadableStreamUnderlyingSource<R>;
   if (type === 'bytes') {
     source = new WrappingReadableByteStreamSource(readable as any as ReadableByteStreamLike) as any;
@@ -48,6 +50,17 @@ export function createWrappingReadableSource<R = any>(readable: ReadableStreamLi
   }
 
   return source;
+}
+
+function parseReadableType(type: string | undefined): 'bytes' | undefined {
+  const typeString = String(type);
+  if (typeString === 'bytes') {
+    return typeString;
+  } else if (type === undefined) {
+    return type;
+  } else {
+    throw new RangeError('Invalid type is specified');
+  }
 }
 
 const enum ReadableStreamReaderMode {
