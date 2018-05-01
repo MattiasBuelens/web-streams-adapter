@@ -15,16 +15,14 @@ export function createWrappingReadableStream(baseClass: ReadableStreamConstructo
   const wrappingClass = class WrappingReadableStream<R = any> extends baseClass {
 
     constructor(underlyingSource: ReadableStreamUnderlyingSource<R> = {},
-                { size, highWaterMark }: Partial<QueuingStrategy> = {},
+                strategy: Partial<QueuingStrategy> = {},
                 wrapped = false) {
       if (!wrapped) {
-        const wrappedReadableStream = new baseClass<R>(underlyingSource, { size, highWaterMark });
+        const wrappedReadableStream = new baseClass<R>(underlyingSource, strategy);
         underlyingSource = createWrappingReadableSource(wrappedReadableStream, { type: underlyingSource.type });
-        size = undefined;
-        highWaterMark = 0;
       }
 
-      super(underlyingSource, { size, highWaterMark });
+      super(underlyingSource);
     }
 
     get locked() {

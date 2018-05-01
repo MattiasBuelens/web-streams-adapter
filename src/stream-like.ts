@@ -11,7 +11,7 @@ import {
 
 export interface ReadableStreamLikeConstructor {
   new<R = any>(underlyingSource?: ReadableStreamUnderlyingSource<R>,
-               queuingStrategy?: Partial<QueuingStrategy>): ReadableStreamLike<R>;
+               strategy?: Partial<QueuingStrategy>): ReadableStreamLike<R>;
 }
 
 export interface ReadableStreamLike<R = any> {
@@ -29,7 +29,7 @@ export type ReadableByteStreamLike = ReadableStreamLike<Uint8Array>;
 
 export interface WritableStreamLikeConstructor {
   new<W = any>(underlyingSink?: WritableStreamUnderlyingSink<W>,
-               queuingStrategy?: Partial<QueuingStrategy>): WritableStreamLike<W>;
+               strategy?: Partial<QueuingStrategy>): WritableStreamLike<W>;
 }
 
 export interface WritableStreamLike<W = any> {

@@ -10,11 +10,11 @@ export function createWrappingWritableStream(baseClass: WritableStreamConstructo
   const wrappingClass = class WrappingWritableStream<W = any> extends baseClass {
 
     constructor(underlyingSink: WritableStreamUnderlyingSink<W> = {},
-                { size, highWaterMark }: Partial<QueuingStrategy> = {}) {
+                strategy: Partial<QueuingStrategy> = {}) {
       const wrappedWritableStream = new baseClass<W>(underlyingSink, { highWaterMark: 1 });
       underlyingSink = createWrappingWritableSink(wrappedWritableStream);
 
-      super(underlyingSink, { size, highWaterMark });
+      super(underlyingSink, strategy);
     }
 
     get locked() {
