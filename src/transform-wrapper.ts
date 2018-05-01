@@ -7,6 +7,7 @@ import {
   TransformStreamTransformer,
   WritableStreamDefaultWriter
 } from '@mattiasbuelens/web-streams-polyfill';
+import { noop } from './helpers';
 
 export type TransformStreamWrapper = <I, O>(Transform: TransformStreamLike<I, O>) => TransformStreamLike<I, O>;
 
@@ -61,16 +62,10 @@ class WrappingTransformStreamTransformer<I, O> implements TransformStreamTransfo
 
     this._reader.read()
       .then(this._onRead)
-      .then(
-        () => this._flushResolve(),
-        this._onError
-      );
+      .then(this._onTerminate, this._onError);
 
     this._reader.closed
-      .then(
-        () => this._transformStreamController.terminate(),
-        this._onError
-      );
+      .then(this._onTerminate, this._onError);
   }
 
   transform(chunk: I) {
@@ -93,6 +88,17 @@ class WrappingTransformStreamTransformer<I, O> implements TransformStreamTransfo
   private _onError = (reason: any) => {
     this._flushReject(reason);
     this._transformStreamController.error(reason);
+
+    this._reader.cancel(reason).catch(noop);
+    this._writer.abort(reason).catch(noop);
+  };
+
+  private _onTerminate = () => {
+    this._flushResolve();
+    this._transformStreamController.terminate();
+
+    const error = new TypeError('TransformStream terminated');
+    this._writer.abort(error).catch(noop);
   };
 
 }
