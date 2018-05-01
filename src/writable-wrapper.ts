@@ -6,6 +6,7 @@ import {
   WritableStreamDefaultWriter,
   WritableStreamUnderlyingSink
 } from '@mattiasbuelens/web-streams-polyfill';
+import { noop } from './helpers';
 
 export type WritableStreamWrapper = <W>(writable: WritableStreamLike<W>) => WritableStreamLike<W>;
 
@@ -48,7 +49,7 @@ class WrappingWritableStreamSink<W> implements WritableStreamUnderlyingSink<W> {
     this._errorPromise = new Promise<void>((resolve, reject) => {
       this._errorPromiseReject = reject;
     });
-    this._errorPromise.catch(() => {});
+    this._errorPromise.catch(noop);
   }
 
   start(controller: WritableStreamDefaultController): void {

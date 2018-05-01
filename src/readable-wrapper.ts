@@ -14,6 +14,7 @@ import {
   ReadableStreamReaderBase,
   ReadableStreamUnderlyingSource
 } from '@mattiasbuelens/web-streams-polyfill';
+import { noop } from './helpers';
 
 export interface WrappingReadableSourceOptions {
   type?: 'bytes';
@@ -108,7 +109,7 @@ class AbstractWrappingReadableStreamSource<R> implements ReadableStreamDefaultUn
           this._readableStreamController.error(reason);
         }
       })
-      .catch(() => {});
+      .catch(noop);
   }
 
   protected _detachReader(): void {
