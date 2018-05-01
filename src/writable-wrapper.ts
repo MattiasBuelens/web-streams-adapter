@@ -15,14 +15,19 @@ export function createWrappingWritableSink<W = any>(writable: WritableStream<W>)
   return new WrappingWritableStreamSink(writer);
 }
 
-type WritableStreamState = 'writable' | 'erroring' | 'errored' | 'closed';
+const enum WritableStreamState {
+  WRITABLE = 'writable',
+  ERRORING = 'erroring',
+  ERRORED = 'errored',
+  CLOSED = 'closed'
+}
 
 class WrappingWritableStreamSink<W> implements WritableStreamUnderlyingSink<W> {
 
   protected readonly _underlyingWriter: WritableStreamDefaultWriter<W>;
   private _writableStreamController: WritableStreamDefaultController = undefined!;
   private _pendingWrite: Promise<void> | undefined = undefined;
-  private _state: WritableStreamState = 'writable';
+  private _state: WritableStreamState = WritableStreamState.WRITABLE;
   private _storedError: any = undefined;
   private _errorPromise: Promise<void>;
   private _errorPromiseReject!: (reason: any) => void;
@@ -40,7 +45,7 @@ class WrappingWritableStreamSink<W> implements WritableStreamUnderlyingSink<W> {
 
     this._underlyingWriter.closed
       .then(() => {
-        this._state = 'closed';
+        this._state = WritableStreamState.CLOSED;
       })
       .catch(reason => this._finishErroring(reason));
   }
@@ -74,7 +79,7 @@ class WrappingWritableStreamSink<W> implements WritableStreamUnderlyingSink<W> {
   }
 
   abort(reason: any): void | Promise<void> {
-    if (this._state === 'errored') {
+    if (this._state === WritableStreamState.ERRORED) {
       return undefined;
     }
 
@@ -101,8 +106,8 @@ class WrappingWritableStreamSink<W> implements WritableStreamUnderlyingSink<W> {
   }
 
   private _startErroring(reason: any): void {
-    if (this._state === 'writable') {
-      this._state = 'erroring';
+    if (this._state === WritableStreamState.WRITABLE) {
+      this._state = WritableStreamState.ERRORING;
       this._storedError = reason;
 
       const afterWrite = () => this._finishErroring(reason);
@@ -117,11 +122,11 @@ class WrappingWritableStreamSink<W> implements WritableStreamUnderlyingSink<W> {
   }
 
   private _finishErroring(reason: any): void {
-    if (this._state === 'writable') {
+    if (this._state === WritableStreamState.WRITABLE) {
       this._startErroring(reason);
     }
-    if (this._state === 'erroring') {
-      this._state = 'errored';
+    if (this._state === WritableStreamState.ERRORING) {
+      this._state = WritableStreamState.ERRORED;
       this._errorPromiseReject(this._storedError);
     }
   }

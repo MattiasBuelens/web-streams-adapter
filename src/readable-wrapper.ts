@@ -35,7 +35,10 @@ export function createWrappingReadableSource<R = any>(readable: ReadableStream<R
   return source;
 }
 
-type ReadableStreamReaderMode = 'default' | 'byob';
+const enum ReadableStreamReaderMode {
+  DEFAULT = 'default',
+  BYOB = 'byob'
+}
 
 class AbstractWrappingReadableStreamSource<R> implements ReadableStreamDefaultUnderlyingSource {
 
@@ -65,14 +68,14 @@ class AbstractWrappingReadableStreamSource<R> implements ReadableStreamDefaultUn
   }
 
   protected _attachDefaultReader(): void {
-    if (this._readerMode === 'default') {
+    if (this._readerMode === ReadableStreamReaderMode.DEFAULT) {
       return;
     }
 
     this._detachReader();
 
     const reader = this._underlyingStream.getReader();
-    this._readerMode = 'default';
+    this._readerMode = ReadableStreamReaderMode.DEFAULT;
     this._attachReader(reader);
   }
 
@@ -178,7 +181,7 @@ class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSou
   }
 
   _attachByobReader() {
-    if (this._readerMode === 'byob') {
+    if (this._readerMode === ReadableStreamReaderMode.BYOB) {
       return;
     }
 
@@ -186,7 +189,7 @@ class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSou
     this._detachReader();
 
     const reader = this._underlyingStream.getReader({ mode: 'byob' });
-    this._readerMode = 'byob';
+    this._readerMode = ReadableStreamReaderMode.BYOB;
     this._attachReader(reader);
   }
 
