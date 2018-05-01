@@ -52,7 +52,7 @@ class WrappingTransformStreamTransformer<I, O> implements TransformStreamTransfo
     this._writer = writer;
     this._flushPromise = new Promise<void>((resolve, reject) => {
       this._flushResolve = resolve;
-      this._flushReject = resolve;
+      this._flushReject = reject;
     });
   }
 
