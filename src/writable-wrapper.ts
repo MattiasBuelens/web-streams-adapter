@@ -1,13 +1,24 @@
 import assert from './assert';
-import { isWritableStream } from './checks';
+import { isWritableStream, isWritableStreamConstructor } from './checks';
+import { WritableStreamLike, WritableStreamLikeConstructor } from './stream-like';
 import {
-  WritableStream,
   WritableStreamDefaultController,
   WritableStreamDefaultWriter,
   WritableStreamUnderlyingSink
 } from '@mattiasbuelens/web-streams-polyfill';
 
-export function createWrappingWritableSink<W = any>(writable: WritableStream<W>): WritableStreamUnderlyingSink<W> {
+export type WritableStreamWrapper = <W>(writable: WritableStreamLike<W>) => WritableStreamLike<W>;
+
+export function createWritableStreamWrapper(ctor: WritableStreamLikeConstructor): WritableStreamWrapper {
+  assert(isWritableStreamConstructor(ctor));
+
+  return <W>(writable: WritableStreamLike<W>) => {
+    const sink = createWrappingWritableSink(writable);
+    return new ctor(sink, { highWaterMark: 1 });
+  };
+}
+
+export function createWrappingWritableSink<W = any>(writable: WritableStreamLike<W>): WritableStreamUnderlyingSink<W> {
   assert(isWritableStream(writable));
   assert(writable.locked === false);
 

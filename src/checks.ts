@@ -1,12 +1,12 @@
 import { typeIsObject } from './helpers';
 import {
-  ReadableStream,
-  ReadableStreamConstructor,
-  TransformStream,
-  TransformStreamConstructor,
-  WritableStream,
-  WritableStreamConstructor
-} from '@mattiasbuelens/web-streams-polyfill';
+  ReadableStreamLike,
+  ReadableStreamLikeConstructor,
+  TransformStreamLike,
+  TransformStreamLikeConstructor,
+  WritableStreamLike,
+  WritableStreamLikeConstructor
+} from './stream-like';
 
 function isStreamConstructor(ctor: any): ctor is Function {
   if (typeof ctor !== 'function') {
@@ -25,17 +25,17 @@ function isStreamConstructor(ctor: any): ctor is Function {
   return startCalled;
 }
 
-export function isReadableStream(readable: any): readable is ReadableStream {
+export function isReadableStream(readable: any): readable is ReadableStreamLike {
   if (!typeIsObject(readable)) {
     return false;
   }
-  if (typeof (readable as ReadableStream).getReader !== 'function') {
+  if (typeof (readable as ReadableStreamLike).getReader !== 'function') {
     return false;
   }
   return true;
 }
 
-export function isReadableStreamConstructor(ctor: any): ctor is ReadableStreamConstructor {
+export function isReadableStreamConstructor(ctor: any): ctor is ReadableStreamLikeConstructor {
   if (!isStreamConstructor(ctor)) {
     return false;
   }
@@ -45,17 +45,17 @@ export function isReadableStreamConstructor(ctor: any): ctor is ReadableStreamCo
   return true;
 }
 
-export function isWritableStream(writable: any): writable is WritableStream {
+export function isWritableStream(writable: any): writable is WritableStreamLike {
   if (!typeIsObject(writable)) {
     return false;
   }
-  if (typeof (writable as WritableStream).getWriter !== 'function') {
+  if (typeof (writable as WritableStreamLike).getWriter !== 'function') {
     return false;
   }
   return true;
 }
 
-export function isWritableStreamConstructor(ctor: any): ctor is WritableStreamConstructor {
+export function isWritableStreamConstructor(ctor: any): ctor is WritableStreamLikeConstructor {
   if (!isStreamConstructor(ctor)) {
     return false;
   }
@@ -65,20 +65,20 @@ export function isWritableStreamConstructor(ctor: any): ctor is WritableStreamCo
   return true;
 }
 
-export function isTransformStream(transform: any): transform is TransformStream {
+export function isTransformStream(transform: any): transform is TransformStreamLike {
   if (!typeIsObject(transform)) {
     return false;
   }
-  if (!isReadableStream((transform as TransformStream).readable)) {
+  if (!isReadableStream((transform as TransformStreamLike).readable)) {
     return false;
   }
-  if (!isWritableStream((transform as TransformStream).writable)) {
+  if (!isWritableStream((transform as TransformStreamLike).writable)) {
     return false;
   }
   return true;
 }
 
-export function isTransformStreamConstructor(ctor: any): ctor is TransformStreamConstructor {
+export function isTransformStreamConstructor(ctor: any): ctor is TransformStreamLikeConstructor {
   if (!isStreamConstructor(ctor)) {
     return false;
   }

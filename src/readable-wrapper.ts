@@ -1,10 +1,10 @@
 import assert from './assert';
-import { isReadableStream } from './checks';
-import { supportsByobReader } from './utils';
+import { isReadableStream, isReadableStreamConstructor } from './checks';
+import { supportsByobReader, supportsByteSource } from './utils';
+import { ReadableByteStreamLike, ReadableStreamLike, ReadableStreamLikeConstructor } from './stream-like';
 import {
   ReadableByteStreamController,
   ReadableByteStreamStreamUnderlyingSource,
-  ReadableStream,
   ReadableStreamBYOBReader,
   ReadableStreamBYOBRequest,
   ReadableStreamControllerBase,
@@ -15,19 +15,33 @@ import {
   ReadableStreamUnderlyingSource
 } from '@mattiasbuelens/web-streams-polyfill';
 
-export type ReadableByteStream = ReadableStream<Uint8Array>;
-
 export interface WrappingReadableSourceOptions {
   type?: 'bytes';
 }
 
-export function createWrappingReadableSource<R = any>(readable: ReadableStream<R>, { type }: WrappingReadableSourceOptions = {}): ReadableStreamUnderlyingSource<R> {
+export type ReadableStreamWrapper = <R>(readable: ReadableStreamLike<R>, options?: WrappingReadableSourceOptions) => ReadableStreamLike<R>;
+
+export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor): ReadableStreamWrapper {
+  assert(isReadableStreamConstructor(ctor));
+
+  const byteSourceSupported = supportsByteSource(ctor);
+
+  return <R>(readable: ReadableStreamLike<R>, { type }: WrappingReadableSourceOptions = {}) => {
+    if (type === 'bytes' && !byteSourceSupported) {
+      type = undefined;
+    }
+    const source = createWrappingReadableSource(readable, { type });
+    return new ctor(source, { highWaterMark: 0 });
+  };
+}
+
+export function createWrappingReadableSource<R = any>(readable: ReadableStreamLike<R>, { type }: WrappingReadableSourceOptions = {}): ReadableStreamUnderlyingSource<R> {
   assert(isReadableStream(readable));
   assert(readable.locked === false);
 
   let source: ReadableStreamUnderlyingSource<R>;
   if (type === 'bytes') {
-    source = new WrappingReadableByteStreamSource(readable as any as ReadableByteStream) as any;
+    source = new WrappingReadableByteStreamSource(readable as any as ReadableByteStreamLike) as any;
   } else {
     source = new WrappingReadableStreamDefaultSource<R>(readable);
   }
@@ -42,13 +56,13 @@ const enum ReadableStreamReaderMode {
 
 class AbstractWrappingReadableStreamSource<R> implements ReadableStreamDefaultUnderlyingSource {
 
-  protected readonly _underlyingStream: ReadableStream<R>;
+  protected readonly _underlyingStream: ReadableStreamLike<R>;
   protected _underlyingReader: ReadableStreamReaderBase | undefined = undefined;
   protected _readerMode: ReadableStreamReaderMode | undefined = undefined;
   protected _readableStreamController: ReadableStreamControllerBase<R> = undefined!;
   private _pendingRead: Promise<void> | undefined = undefined;
 
-  constructor(underlyingStream: ReadableStream<R>) {
+  constructor(underlyingStream: ReadableStreamLike<R>) {
     this._underlyingStream = underlyingStream;
 
     // always keep a reader attached to detect close/error
@@ -170,7 +184,7 @@ class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSou
   protected _readableStreamController!: ReadableByteStreamController;
   protected readonly _supportsByob: boolean;
 
-  constructor(underlyingStream: ReadableByteStream) {
+  constructor(underlyingStream: ReadableByteStreamLike) {
     const supportsByob = supportsByobReader(underlyingStream);
     super(underlyingStream);
     this._supportsByob = supportsByob;
