@@ -3,9 +3,7 @@
 const path = require('path');
 const wptRunner = require('wpt-runner');
 const minimatch = require('minimatch');
-const { createWrappingReadableStream } = require('./wrapping-readable-stream');
-const { createWrappingWritableStream } = require('./wrapping-writable-stream');
-const { createWrappingTransformStream } = require('./wrapping-transform-stream');
+const { createWrappingStreams } = require('./wrappers');
 const {
   ReadableStream,
   WritableStream,
@@ -13,9 +11,11 @@ const {
   CountQueuingStrategy,
   TransformStream
 } = require('@mattiasbuelens/web-streams-polyfill/dist/polyfill.wpt');
-const WrappingReadableStream = createWrappingReadableStream(ReadableStream);
-const WrappingWritableStream = createWrappingWritableStream(WritableStream);
-const WrappingTransformStream = createWrappingTransformStream(TransformStream);
+const {
+  ReadableStream: WrappingReadableStream,
+  WritableStream: WrappingWritableStream,
+  TransformStream: WrappingTransformStream
+} = createWrappingStreams({ ReadableStream, WritableStream, TransformStream });
 
 const testsPath = path.resolve(__dirname, '../web-platform-tests/streams');
 
@@ -64,7 +64,7 @@ function setup(window: any) {
 
   window.ReadableStream = WrappingReadableStream;
   window.WritableStream = WrappingWritableStream;
-  window.TransformStream = TransformStream;
+  window.TransformStream = WrappingTransformStream;
   window.ByteLengthQueuingStrategy = ByteLengthQueuingStrategy;
   window.CountQueuingStrategy = CountQueuingStrategy;
 }
