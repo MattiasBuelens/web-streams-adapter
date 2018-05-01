@@ -5,6 +5,7 @@ const wptRunner = require('wpt-runner');
 const minimatch = require('minimatch');
 const { createWrappingReadableStream } = require('./wrapping-readable-stream');
 const { createWrappingWritableStream } = require('./wrapping-writable-stream');
+const { createWrappingTransformStream } = require('./wrapping-transform-stream');
 const {
   ReadableStream,
   WritableStream,
@@ -14,6 +15,7 @@ const {
 } = require('@mattiasbuelens/web-streams-polyfill/dist/polyfill.wpt');
 const WrappingReadableStream = createWrappingReadableStream(ReadableStream);
 const WrappingWritableStream = createWrappingWritableStream(WritableStream);
+const WrappingTransformStream = createWrappingTransformStream(TransformStream);
 
 const testsPath = path.resolve(__dirname, '../web-platform-tests/streams');
 
