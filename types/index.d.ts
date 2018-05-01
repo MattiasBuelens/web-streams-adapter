@@ -15,4 +15,4 @@ export declare function createWrappingReadableSource<R = any>(readable: Readable
 
 export declare function createWrappingWritableSink<W = any>(writable: WritableStream<W>): WritableStreamUnderlyingSink<W>;
 
-export declare function createWrappingTransformer<I = any, O = any>(writable: TransformStream<I, O>): TransformStreamTransformer<I, O>;
+export declare function createWrappingTransformer<I = any, O = any>(transform: TransformStream<I, O>): TransformStreamTransformer<I, O>;
