@@ -11,7 +11,13 @@ import {
 } from '@mattiasbuelens/web-streams-polyfill';
 import { createWrappingReadableSource } from '../';
 
-export function createWrappingReadableStream(baseClass: ReadableStreamConstructor): ReadableStreamConstructor {
+export interface WrappingReadableStreamConstructor {
+  new<R = any>(underlyingSource?: ReadableStreamUnderlyingSource<R>,
+               queuingStrategy?: Partial<QueuingStrategy>,
+               wrapped?: boolean): ReadableStream<R>;
+}
+
+export function createWrappingReadableStream(baseClass: ReadableStreamConstructor): WrappingReadableStreamConstructor {
   const wrappingClass = class WrappingReadableStream<R = any> extends baseClass {
 
     constructor(underlyingSource: ReadableStreamUnderlyingSource<R> = {},
@@ -58,5 +64,5 @@ export function createWrappingReadableStream(baseClass: ReadableStreamConstructo
 
   Object.defineProperty(wrappingClass, 'name', { value: 'ReadableStream' });
 
-  return wrappingClass as ReadableStreamConstructor;
+  return wrappingClass as WrappingReadableStreamConstructor;
 }

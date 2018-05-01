@@ -16,7 +16,7 @@ export interface StreamClasses {
 export function createWrappingStreams({ ReadableStream, WritableStream, TransformStream }: StreamClasses): StreamClasses {
   const WrappingReadableStream = createWrappingReadableStream(ReadableStream);
   const WrappingWritableStream = createWrappingWritableStream(WritableStream);
-  const WrappingTransformStream = createWrappingTransformStream(TransformStream);
+  const WrappingTransformStream = createWrappingTransformStream(TransformStream, WrappingReadableStream, WrappingWritableStream);
 
   return {
     ReadableStream: WrappingReadableStream,
