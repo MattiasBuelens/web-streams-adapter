@@ -22,13 +22,13 @@ export function createWrappingReadableStream(baseClass: ReadableStreamConstructo
 
     constructor(underlyingSource: ReadableStreamUnderlyingSource<R> = {},
                 strategy: Partial<QueuingStrategy> = {},
-                wrapped = false) {
+                wrapped: boolean = false) {
       if (!wrapped) {
-        const wrappedReadableStream = new baseClass<R>(underlyingSource, strategy);
+        const wrappedReadableStream = new baseClass<R>(underlyingSource);
         underlyingSource = createWrappingReadableSource(wrappedReadableStream, { type: underlyingSource.type });
       }
 
-      super(underlyingSource);
+      super(underlyingSource, strategy);
     }
 
     get locked() {

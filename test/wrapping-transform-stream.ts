@@ -23,13 +23,13 @@ export function createWrappingTransformStream(baseClass: TransformStreamConstruc
       const wrappedTransformStream = new baseClass<I, O>(transformer);
       transformer = createWrappingTransformer(wrappedTransformStream);
 
-      super(transformer, writableStrategy, readableStrategy);
+      super(transformer);
 
       const wrappedReadableSource = createWrappingReadableSource(super.readable, { type: transformer.readableType });
-      this._wrappedReadable = new readableClass(wrappedReadableSource, {}, true);
+      this._wrappedReadable = new readableClass(wrappedReadableSource, readableStrategy, true);
 
       const wrappedWritableSink = createWrappingWritableSink(super.writable);
-      this._wrappedWritable = new writableClass(wrappedWritableSink, {}, true);
+      this._wrappedWritable = new writableClass(wrappedWritableSink, writableStrategy, true);
     }
 
     get readable() {
