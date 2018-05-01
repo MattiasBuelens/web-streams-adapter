@@ -14,7 +14,11 @@ import { createWrappingReadableSource } from '../';
 export const isWrappedReadableStream = Symbol('isWrappedReadableStream');
 
 export type WrappedReadableStreamUnderlyingSource<R> = ReadableStreamUnderlyingSource<R> & {
-  [isWrappedReadableStream]?: boolean;
+  [isWrappedReadableStream]?: true;
+}
+
+function isWrappedReadableStreamUnderlyingSource<R>(source: ReadableStreamUnderlyingSource<R>): source is WrappedReadableStreamUnderlyingSource<R> {
+  return (source as WrappedReadableStreamUnderlyingSource<R>)[isWrappedReadableStream] === true;
 }
 
 export function createWrappingReadableStream(baseClass: ReadableStreamConstructor): ReadableStreamConstructor {
@@ -22,7 +26,7 @@ export function createWrappingReadableStream(baseClass: ReadableStreamConstructo
 
     constructor(underlyingSource: ReadableStreamUnderlyingSource<R> = {},
                 strategy: Partial<QueuingStrategy> = {}) {
-      if (!(underlyingSource as WrappedReadableStreamUnderlyingSource<R>)[isWrappedReadableStream]) {
+      if (!isWrappedReadableStreamUnderlyingSource(underlyingSource)) {
         const wrappedReadableStream = new baseClass<R>(underlyingSource);
         underlyingSource = createWrappingReadableSource(wrappedReadableStream, { type: underlyingSource.type });
       }

@@ -9,7 +9,11 @@ import { createWrappingWritableSink } from '../';
 export const isWrappedWritableStream = Symbol('isWrappedWritableStream');
 
 export type WrappedWritableStreamUnderlyingSink<W> = WritableStreamUnderlyingSink<W> & {
-  [isWrappedWritableStream]?: boolean;
+  [isWrappedWritableStream]?: true;
+}
+
+function isWrappedWritableStreamUnderlyingSink<W>(sink: WritableStreamUnderlyingSink<W>): sink is WrappedWritableStreamUnderlyingSink<W> {
+  return (sink as WrappedWritableStreamUnderlyingSink<W>)[isWrappedWritableStream] === true;
 }
 
 export function createWrappingWritableStream(baseClass: WritableStreamConstructor): WritableStreamConstructor {
@@ -17,7 +21,7 @@ export function createWrappingWritableStream(baseClass: WritableStreamConstructo
 
     constructor(underlyingSink: WritableStreamUnderlyingSink<W> = {},
                 strategy: Partial<QueuingStrategy> = {}) {
-      if (!(underlyingSink as WrappedWritableStreamUnderlyingSink<W>)[isWrappedWritableStream]) {
+      if (!isWrappedWritableStreamUnderlyingSink(underlyingSink)) {
         const wrappedWritableStream = new baseClass<W>(underlyingSink);
         underlyingSink = createWrappingWritableSink(wrappedWritableStream);
       }
