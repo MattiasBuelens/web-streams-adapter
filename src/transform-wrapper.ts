@@ -7,7 +7,7 @@ import {
   TransformStreamTransformer,
   WritableStreamDefaultWriter
 } from '@mattiasbuelens/web-streams-polyfill';
-import { noop } from './helpers';
+import { noop } from './utils';
 
 export type TransformStreamWrapper = <I, O>(Transform: TransformStreamLike<I, O>) => TransformStreamLike<I, O>;
 

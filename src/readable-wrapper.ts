@@ -1,6 +1,6 @@
 import assert from './assert';
 import { isReadableStream, isReadableStreamConstructor } from './checks';
-import { supportsByobReader, supportsByteSource } from './utils';
+import { noop, supportsByobReader, supportsByteSource } from './utils';
 import { ReadableByteStreamLike, ReadableStreamLike, ReadableStreamLikeConstructor } from './stream-like';
 import {
   ReadableByteStreamController,
@@ -14,7 +14,6 @@ import {
   ReadableStreamReaderBase,
   ReadableStreamUnderlyingSource
 } from '@mattiasbuelens/web-streams-polyfill';
-import { noop } from './helpers';
 
 export interface WrappingReadableSourceOptions {
   type?: 'bytes';

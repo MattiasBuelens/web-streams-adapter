@@ -1,4 +1,4 @@
-import { typeIsObject } from './helpers';
+import { typeIsObject } from './utils';
 import {
   ReadableStreamLike,
   ReadableStreamLikeConstructor,

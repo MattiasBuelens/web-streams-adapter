@@ -6,7 +6,7 @@ import {
   WritableStreamDefaultWriter,
   WritableStreamUnderlyingSink
 } from '@mattiasbuelens/web-streams-polyfill';
-import { noop } from './helpers';
+import { noop } from './utils';
 
 export type WritableStreamWrapper = <W>(writable: WritableStreamLike<W>) => WritableStreamLike<W>;
 

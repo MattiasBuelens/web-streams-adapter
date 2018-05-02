@@ -1,5 +1,13 @@
 import { ReadableByteStreamLike, ReadableStreamLike, ReadableStreamLikeConstructor } from './stream-like';
 
+export function noop() {
+  return;
+}
+
+export function typeIsObject(x: any): x is object | Function {
+  return (typeof x === 'object' && x !== null) || typeof x === 'function';
+}
+
 export function supportsByobReader<R>(readable: ReadableStreamLike<R>): boolean {
   try {
     const reader = (readable as any as ReadableByteStreamLike).getReader({ mode: 'byob' });
