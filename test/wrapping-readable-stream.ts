@@ -42,7 +42,7 @@ export function createWrappingReadableStream(baseClass: ReadableStreamConstructo
       return super.cancel(reason);
     }
 
-    getReader(options: { mode: (R extends Uint8Array ? 'byob' : never) }): ReadableStreamBYOBReader;
+    getReader(options: { mode: 'byob' }): ReadableStreamBYOBReader;
     getReader(options?: { mode?: undefined }): ReadableStreamDefaultReader<R>;
     getReader(options: { mode?: 'byob' | undefined } = {}): ReadableStreamDefaultReader<R> | ReadableStreamBYOBReader {
       return super.getReader(options as any);

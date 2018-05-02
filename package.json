@@ -24,10 +24,10 @@
   },
   "homepage": "https://github.com/MattiasBuelens/web-streams-adapter#readme",
   "peerDependencies": {
-    "@mattiasbuelens/web-streams-polyfill": "^0.1.0-alpha.1"
+    "@mattiasbuelens/web-streams-polyfill": "^0.1.0-alpha.2"
   },
   "devDependencies": {
-    "@mattiasbuelens/web-streams-polyfill": "^0.1.0-alpha.1",
+    "@mattiasbuelens/web-streams-polyfill": "^0.1.0-alpha.2",
     "@types/minimatch": "^3.0.3",
     "@types/node": "^9.6.7",
     "minimatch": "^3.0.4",
