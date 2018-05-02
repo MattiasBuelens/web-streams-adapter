@@ -1,6 +1,6 @@
 import assert from './assert';
 import { isTransformStream, isTransformStreamConstructor } from './checks';
-import { TransformStreamLike, TransformStreamLikeConstructor } from '../';
+import { TransformStreamLike, TransformStreamLikeConstructor, TransformStreamWrapper } from '../';
 import {
   ReadableStreamDefaultReader,
   TransformStreamDefaultController,
@@ -8,8 +8,6 @@ import {
   WritableStreamDefaultWriter
 } from '@mattiasbuelens/web-streams-polyfill';
 import { noop } from './utils';
-
-export type TransformStreamWrapper = <I, O>(Transform: TransformStreamLike<I, O>) => TransformStreamLike<I, O>;
 
 export function createTransformStreamWrapper(ctor: TransformStreamLikeConstructor): TransformStreamWrapper {
   assert(isTransformStreamConstructor(ctor));

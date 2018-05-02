@@ -1,14 +1,12 @@
 import assert from './assert';
 import { isWritableStream, isWritableStreamConstructor } from './checks';
-import { WritableStreamLike, WritableStreamLikeConstructor } from '../';
+import { WritableStreamLike, WritableStreamLikeConstructor, WritableStreamWrapper } from '../';
 import {
   WritableStreamDefaultController,
   WritableStreamDefaultWriter,
   WritableStreamUnderlyingSink
 } from '@mattiasbuelens/web-streams-polyfill';
 import { noop } from './utils';
-
-export type WritableStreamWrapper = <W>(writable: WritableStreamLike<W>) => WritableStreamLike<W>;
 
 export function createWritableStreamWrapper(ctor: WritableStreamLikeConstructor): WritableStreamWrapper {
   assert(isWritableStreamConstructor(ctor));

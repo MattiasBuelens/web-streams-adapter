@@ -52,6 +52,12 @@ export interface WrappingReadableSourceOptions {
   type?: 'bytes';
 }
 
+export type ReadableStreamWrapper = <R>(readable: ReadableStreamLike<R>, options?: WrappingReadableSourceOptions) => ReadableStreamLike<R>;
+
+export type TransformStreamWrapper = <I, O>(Transform: TransformStreamLike<I, O>) => TransformStreamLike<I, O>;
+
+export type WritableStreamWrapper = <W>(writable: WritableStreamLike<W>) => WritableStreamLike<W>;
+
 export declare function createWrappingReadableSource<R = any>(readable: ReadableStreamLike<R>, options?: WrappingReadableSourceOptions): ReadableStreamUnderlyingSource<R>;
 
 export declare function createWrappingWritableSink<W = any>(writable: WritableStreamLike<W>): WritableStreamUnderlyingSink<W>;

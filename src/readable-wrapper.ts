@@ -1,7 +1,13 @@
 import assert from './assert';
 import { isReadableStream, isReadableStreamConstructor, supportsByobReader, supportsByteSource } from './checks';
 import { noop } from './utils';
-import { ReadableByteStreamLike, ReadableStreamLike, ReadableStreamLikeConstructor } from '../';
+import {
+  ReadableByteStreamLike,
+  ReadableStreamLike,
+  ReadableStreamLikeConstructor,
+  ReadableStreamWrapper,
+  WrappingReadableSourceOptions
+} from '../';
 import {
   ReadableByteStreamController,
   ReadableByteStreamStreamUnderlyingSource,
@@ -14,12 +20,6 @@ import {
   ReadableStreamReaderBase,
   ReadableStreamUnderlyingSource
 } from '@mattiasbuelens/web-streams-polyfill';
-
-export interface WrappingReadableSourceOptions {
-  type?: 'bytes';
-}
-
-export type ReadableStreamWrapper = <R>(readable: ReadableStreamLike<R>, options?: WrappingReadableSourceOptions) => ReadableStreamLike<R>;
 
 export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor): ReadableStreamWrapper {
   assert(isReadableStreamConstructor(ctor));
