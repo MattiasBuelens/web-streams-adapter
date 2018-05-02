@@ -1,3 +1,3 @@
-export { createWrappingReadableSource } from './readable-wrapper';
-export { createWrappingWritableSink } from './writable-wrapper';
-export { createWrappingTransformer } from './transform-wrapper';
+export { createReadableStreamWrapper, createWrappingReadableSource } from './readable-wrapper';
+export { createWritableStreamWrapper, createWrappingWritableSink } from './writable-wrapper';
+export { createTransformStreamWrapper, createWrappingTransformer } from './transform-wrapper';

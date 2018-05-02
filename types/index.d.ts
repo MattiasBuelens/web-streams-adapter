@@ -48,6 +48,10 @@ export interface TransformStreamLikeConstructor {
 
 export type TransformStreamLike<I = any, O = any> = ReadableWritableStreamPair<O, I>;
 
+/*
+ * High-level API
+ */
+
 export interface WrappingReadableSourceOptions {
   type?: 'bytes';
 }
@@ -57,6 +61,16 @@ export type ReadableStreamWrapper = <R>(readable: ReadableStreamLike<R>, options
 export type TransformStreamWrapper = <I, O>(Transform: TransformStreamLike<I, O>) => TransformStreamLike<I, O>;
 
 export type WritableStreamWrapper = <W>(writable: WritableStreamLike<W>) => WritableStreamLike<W>;
+
+export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor): ReadableStreamWrapper;
+
+export function createWritableStreamWrapper(ctor: WritableStreamLikeConstructor): WritableStreamWrapper;
+
+export function createTransformStreamWrapper(ctor: TransformStreamLikeConstructor): TransformStreamWrapper;
+
+/*
+ * Low-level API
+ */
 
 export declare function createWrappingReadableSource<R = any>(readable: ReadableStreamLike<R>, options?: WrappingReadableSourceOptions): ReadableStreamUnderlyingSource<R>;
 
