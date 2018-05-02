@@ -1,4 +1,4 @@
-import { ReadableByteStreamLike, ReadableStreamLike, ReadableStreamLikeConstructor } from './stream-like';
+import { ReadableByteStreamLike, ReadableStreamLike, ReadableStreamLikeConstructor } from '../';
 
 export function noop() {
   return;

@@ -1,6 +1,6 @@
 import assert from './assert';
 import { isTransformStream, isTransformStreamConstructor } from './checks';
-import { TransformStreamLike, TransformStreamLikeConstructor } from './stream-like';
+import { TransformStreamLike, TransformStreamLikeConstructor } from '../';
 import {
   ReadableStreamDefaultReader,
   TransformStreamDefaultController,

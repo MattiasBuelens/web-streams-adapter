@@ -1,7 +1,7 @@
 import assert from './assert';
 import { isReadableStream, isReadableStreamConstructor } from './checks';
 import { noop, supportsByobReader, supportsByteSource } from './utils';
-import { ReadableByteStreamLike, ReadableStreamLike, ReadableStreamLikeConstructor } from './stream-like';
+import { ReadableByteStreamLike, ReadableStreamLike, ReadableStreamLikeConstructor } from '../';
 import {
   ReadableByteStreamController,
   ReadableByteStreamStreamUnderlyingSource,

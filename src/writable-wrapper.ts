@@ -1,6 +1,6 @@
 import assert from './assert';
 import { isWritableStream, isWritableStreamConstructor } from './checks';
-import { WritableStreamLike, WritableStreamLikeConstructor } from './stream-like';
+import { WritableStreamLike, WritableStreamLikeConstructor } from '../';
 import {
   WritableStreamDefaultController,
   WritableStreamDefaultWriter,

@@ -6,7 +6,7 @@ import {
   TransformStreamLikeConstructor,
   WritableStreamLike,
   WritableStreamLikeConstructor
-} from './stream-like';
+} from '../';
 
 function isStreamConstructor(ctor: any): ctor is Function {
   if (typeof ctor !== 'function') {
