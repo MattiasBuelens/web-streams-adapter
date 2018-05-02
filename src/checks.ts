@@ -8,7 +8,9 @@ import {
   WritableStreamLikeConstructor
 } from '../';
 
-function isStreamConstructor(ctor: any): ctor is Function {
+type Constructor<T> = new(...args: any[]) => T;
+
+function isStreamConstructor(ctor: any): ctor is Constructor<any> {
   if (typeof ctor !== 'function') {
     return false;
   }
