@@ -1,7 +1,9 @@
 import {
   QueuingStrategy,
+  ReadableByteStreamStreamUnderlyingSource,
   ReadableStreamBYOBReader,
   ReadableStreamDefaultReader,
+  ReadableStreamDefaultUnderlyingSource,
   ReadableStreamUnderlyingSource,
   ReadableWritableStreamPair,
   TransformStreamTransformer,
@@ -72,6 +74,8 @@ export function createTransformStreamWrapper(ctor: TransformStreamLikeConstructo
  * Low-level API
  */
 
+export declare function createWrappingReadableSource(readable: ReadableStreamLike<Uint8Array>, options: { type: 'bytes' }): ReadableByteStreamStreamUnderlyingSource;
+export declare function createWrappingReadableSource<R = any>(readable: ReadableStreamLike<R>, options?: { type?: undefined }): ReadableStreamDefaultUnderlyingSource<R>;
 export declare function createWrappingReadableSource<R = any>(readable: ReadableStreamLike<R>, options?: WrappingReadableSourceOptions): ReadableStreamUnderlyingSource<R>;
 
 export declare function createWrappingWritableSink<W = any>(writable: WritableStreamLike<W>): WritableStreamUnderlyingSink<W>;
