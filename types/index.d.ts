@@ -46,8 +46,7 @@ export interface TransformStreamLikeConstructor {
                         readableStrategy?: Partial<QueuingStrategy>): TransformStreamLike<I, O>;
 }
 
-export interface TransformStreamLike<I = any, O = any> extends ReadableWritableStreamPair<O, I> {
-}
+export type TransformStreamLike<I = any, O = any> = ReadableWritableStreamPair<O, I>;
 
 export interface WrappingReadableSourceOptions {
   type?: 'bytes';
