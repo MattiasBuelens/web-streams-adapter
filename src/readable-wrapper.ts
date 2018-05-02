@@ -33,7 +33,7 @@ export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor)
       type = undefined;
     }
     const source = createWrappingReadableSource(readable, { type });
-    return new ctor(source, { highWaterMark: 0 });
+    return new ctor(source);
   };
 }
 

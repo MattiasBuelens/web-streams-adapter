@@ -15,7 +15,7 @@ export function createWritableStreamWrapper(ctor: WritableStreamLikeConstructor)
 
   return <W>(writable: WritableStreamLike<W>) => {
     const sink = createWrappingWritableSink(writable);
-    return new ctor(sink, { highWaterMark: 1 });
+    return new ctor(sink);
   };
 }
 
