@@ -140,7 +140,7 @@ class AbstractWrappingReadableStreamSource<R> implements ReadableStreamDefaultUn
       .then(({ value, done }) => {
         const controller = this._readableStreamController;
         if (done) {
-          controller.close();
+          this._tryClose();
         } else {
           controller.enqueue(value);
         }
@@ -148,6 +148,14 @@ class AbstractWrappingReadableStreamSource<R> implements ReadableStreamDefaultUn
 
     this._setPendingRead(read);
     return read;
+  }
+
+  protected _tryClose(): void {
+    try {
+      this._readableStreamController.close();
+    } catch {
+      // already errored or closed
+    }
   }
 
   protected _setPendingRead(readPromise: Promise<void>) {
@@ -241,7 +249,7 @@ class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSou
       .then(({ value, done }) => {
         const controller = this._readableStreamController;
         if (done) {
-          controller.close();
+          this._tryClose();
           byobRequest.respond(0);
         } else {
           copyArrayBufferView(value, byobRequest.view);
