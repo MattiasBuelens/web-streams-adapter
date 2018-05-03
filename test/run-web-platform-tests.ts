@@ -22,6 +22,9 @@ const testsPath = path.resolve(__dirname, '../web-platform-tests/streams');
 const filterGlobs = process.argv.length >= 3 ? process.argv.slice(2) : ['**/*.html'];
 const workerTestPattern = /\.(?:dedicated|shared|service)worker(?:\.https)?\.html$/;
 
+// HACK: Hide verbose logs
+console.debug = () => {};
+
 function filter(testPath: string): boolean {
   return !workerTestPattern.test(testPath) && // ignore the worker versions
     filterGlobs.some(glob => minimatch(testPath, glob));
