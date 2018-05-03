@@ -87,11 +87,9 @@ class AbstractWrappingReadableStreamSource<R> implements ReadableStreamDefaultUn
   }
 
   cancel(reason: any): Promise<void> {
-    if (this._underlyingReader !== undefined) {
-      return this._underlyingReader.cancel(reason);
-    } else {
-      return this._underlyingStream.cancel(reason);
-    }
+    assert(this._underlyingReader !== undefined);
+
+    return this._underlyingReader!.cancel(reason);
   }
 
   protected _attachDefaultReader(): void {

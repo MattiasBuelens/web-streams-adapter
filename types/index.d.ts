@@ -19,8 +19,6 @@ export interface ReadableStreamLikeConstructor {
 export interface ReadableStreamLike<R = any> {
   readonly locked: boolean;
 
-  cancel(reason: any): Promise<void>;
-
   // TODO 'byob' mode is available iff underlyingSource extends ReadableByteStreamStreamUnderlyingSource
   getReader(options: { mode: 'byob' }): ReadableStreamBYOBReader;
 
@@ -36,8 +34,6 @@ export interface WritableStreamLikeConstructor {
 
 export interface WritableStreamLike<W = any> {
   readonly locked: boolean;
-
-  abort(reason: any): Promise<void>;
 
   getWriter(): WritableStreamDefaultWriter<W>;
 }
