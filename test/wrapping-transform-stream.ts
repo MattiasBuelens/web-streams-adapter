@@ -8,8 +8,6 @@ import {
   WritableStreamConstructor
 } from '@mattiasbuelens/web-streams-polyfill';
 import { createWrappingReadableSource, createWrappingTransformer, createWrappingWritableSink } from '../';
-import { isWrappedReadableStream, WrappedReadableStreamUnderlyingSource } from './wrapping-readable-stream';
-import { isWrappedWritableStream, WrappedWritableStreamUnderlyingSink } from './wrapping-writable-stream';
 
 export function createWrappingTransformStream(baseClass: TransformStreamConstructor,
                                               readableClass: ReadableStreamConstructor,
@@ -27,12 +25,10 @@ export function createWrappingTransformStream(baseClass: TransformStreamConstruc
 
       super(transformer);
 
-      const wrappedReadableSource = createWrappingReadableSource(super.readable, { type: transformer.readableType }) as WrappedReadableStreamUnderlyingSource<O>;
-      wrappedReadableSource[isWrappedReadableStream] = true;
+      const wrappedReadableSource = createWrappingReadableSource(super.readable, { type: transformer.readableType });
       this._wrappedReadable = new readableClass<O>(wrappedReadableSource, readableStrategy);
 
-      const wrappedWritableSink = createWrappingWritableSink(super.writable) as WrappedWritableStreamUnderlyingSink<I>;
-      wrappedWritableSink[isWrappedWritableStream] = true;
+      const wrappedWritableSink = createWrappingWritableSink(super.writable);
       this._wrappedWritable = new writableClass<I>(wrappedWritableSink, writableStrategy);
     }
 

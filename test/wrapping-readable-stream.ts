@@ -11,25 +11,13 @@ import {
 } from '@mattiasbuelens/web-streams-polyfill';
 import { createWrappingReadableSource } from '../';
 
-export const isWrappedReadableStream = Symbol('isWrappedReadableStream');
-
-export type WrappedReadableStreamUnderlyingSource<R> = ReadableStreamUnderlyingSource<R> & {
-  [isWrappedReadableStream]?: true;
-}
-
-function isWrappedReadableStreamUnderlyingSource<R>(source: ReadableStreamUnderlyingSource<R>): source is WrappedReadableStreamUnderlyingSource<R> {
-  return (source as WrappedReadableStreamUnderlyingSource<R>)[isWrappedReadableStream] === true;
-}
-
 export function createWrappingReadableStream(baseClass: ReadableStreamConstructor): ReadableStreamConstructor {
   const wrappingClass = class WrappingReadableStream<R = any> extends baseClass {
 
     constructor(underlyingSource: ReadableStreamUnderlyingSource<R> = {},
                 strategy: Partial<QueuingStrategy> = {}) {
-      if (!isWrappedReadableStreamUnderlyingSource(underlyingSource)) {
-        const wrappedReadableStream = new baseClass<R>(underlyingSource, strategy);
-        underlyingSource = createWrappingReadableSource(wrappedReadableStream, { type: underlyingSource.type });
-      }
+      const wrappedReadableStream = new baseClass<R>(underlyingSource, strategy);
+      underlyingSource = createWrappingReadableSource(wrappedReadableStream, { type: underlyingSource.type });
 
       super(underlyingSource);
     }
@@ -59,10 +47,8 @@ export function createWrappingReadableStream(baseClass: ReadableStreamConstructo
     tee(): [WrappingReadableStream<R>, WrappingReadableStream<R>] {
       const [branch1, branch2] = super.tee();
 
-      const source1 = createWrappingReadableSource<R>(branch1) as WrappedReadableStreamUnderlyingSource<R>;
-      const source2 = createWrappingReadableSource<R>(branch2) as WrappedReadableStreamUnderlyingSource<R>;
-      source1[isWrappedReadableStream] = true;
-      source2[isWrappedReadableStream] = true;
+      const source1 = createWrappingReadableSource<R>(branch1);
+      const source2 = createWrappingReadableSource<R>(branch2);
       const wrapped1 = new WrappingReadableStream<R>(source1);
       const wrapped2 = new WrappingReadableStream<R>(source2);
       return [wrapped1, wrapped2];
