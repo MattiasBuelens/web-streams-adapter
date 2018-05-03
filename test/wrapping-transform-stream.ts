@@ -37,17 +37,13 @@ export function createWrappingTransformStream(baseClass: TransformStreamConstruc
     }
 
     get readable() {
-      this._wrappingTransformStreamBrandCheck();
+      void super.readable; // brand check
       return this._wrappedReadable;
     }
 
     get writable() {
-      this._wrappingTransformStreamBrandCheck();
+      void super.writable; // brand check
       return this._wrappedWritable;
-    }
-
-    private _wrappingTransformStreamBrandCheck() {
-      return super.readable;
     }
 
   };
