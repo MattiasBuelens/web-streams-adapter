@@ -10,7 +10,7 @@ const {
   ByteLengthQueuingStrategy,
   CountQueuingStrategy,
   TransformStream
-} = require('@mattiasbuelens/web-streams-polyfill/dist/polyfill.wpt');
+} = require('@mattiasbuelens/web-streams-polyfill/ponyfill/es6');
 const {
   ReadableStream: WrappingReadableStream,
   WritableStream: WrappingWritableStream,
