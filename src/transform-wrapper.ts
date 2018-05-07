@@ -14,6 +14,9 @@ export function createTransformStreamWrapper(ctor: TransformStreamLikeConstructo
   assert(isTransformStreamConstructor(ctor));
 
   return <I, O>(transform: TransformStreamLike<I, O>) => {
+    if (transform.constructor === ctor) {
+      return transform;
+    }
     const transformer = createWrappingTransformer(transform);
     return new ctor(transformer);
   };

@@ -26,6 +26,11 @@ export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor)
     if (type === 'bytes' && !byteSourceSupported) {
       type = undefined;
     }
+    if (readable.constructor === ctor) {
+      if (type !== 'bytes' || supportsByobReader(readable)) {
+        return readable;
+      }
+    }
     const source = createWrappingReadableSource(readable, { type });
     return new ctor(source);
   };

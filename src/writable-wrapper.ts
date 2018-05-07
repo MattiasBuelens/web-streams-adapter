@@ -13,6 +13,9 @@ export function createWritableStreamWrapper(ctor: WritableStreamLikeConstructor)
   assert(isWritableStreamConstructor(ctor));
 
   return <W>(writable: WritableStreamLike<W>) => {
+    if (writable.constructor === ctor) {
+      return writable;
+    }
     const sink = createWrappingWritableSink(writable);
     return new ctor(sink);
   };
