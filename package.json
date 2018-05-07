@@ -10,8 +10,9 @@
     "types/"
   ],
   "scripts": {
-    "build": "rollup -c",
+    "build-bundle": "rollup -c",
     "build-types": "tsc -p ./src/tsconfig.json --emitDeclarationOnly --declaration --declarationDir ./types",
+    "build": "npm run build-bundle && npm run build-types",
     "test": "cd test && ts-node --expose_gc --project tsconfig.json run-web-platform-tests.ts"
   },
   "repository": {
