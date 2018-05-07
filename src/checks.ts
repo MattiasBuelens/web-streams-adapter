@@ -7,7 +7,7 @@ import {
   TransformStreamLikeConstructor,
   WritableStreamLike,
   WritableStreamLikeConstructor
-} from '../';
+} from './stream-like';
 
 type Constructor<T> = new(...args: any[]) => T;
 
