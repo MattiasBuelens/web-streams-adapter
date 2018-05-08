@@ -112,7 +112,12 @@ class AbstractWrappingReadableStreamSource<R> implements ReadableStreamDefaultUn
     assert(this._underlyingReader === undefined);
 
     this._underlyingReader = reader;
-    this._underlyingReader.closed
+
+    const closed = this._underlyingReader.closed;
+    if (!closed) {
+      return;
+    }
+    closed
       .then(() => this._finishPendingRead())
       .then(() => {
         if (reader === this._underlyingReader) {

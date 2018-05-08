@@ -22,7 +22,7 @@ export interface ReadableStreamLike<R = any> {
 export type ReadableByteStreamLike = ReadableStreamLike<Uint8Array>;
 
 export interface ReadableStreamLikeReaderBase {
-  readonly closed: Promise<void>;
+  readonly closed?: Promise<void>;
 
   cancel(reason: any): Promise<void>;
 

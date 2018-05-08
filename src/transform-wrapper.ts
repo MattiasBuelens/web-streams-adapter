@@ -66,8 +66,11 @@ class WrappingTransformStreamTransformer<I, O> implements TransformStreamTransfo
       .then(this._onRead)
       .then(this._onTerminate, this._onError);
 
-    this._reader.closed
-      .then(this._onTerminate, this._onError);
+    const readerClosed = this._reader.closed;
+    if (readerClosed) {
+      readerClosed
+        .then(this._onTerminate, this._onError);
+    }
   }
 
   transform(chunk: I) {
