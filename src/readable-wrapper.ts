@@ -1,18 +1,22 @@
 import assert from './assert';
 import { isReadableStream, isReadableStreamConstructor, supportsByobReader, supportsByteSource } from './checks';
 import { noop } from './utils';
-import { ReadableByteStreamLike, ReadableStreamLike, ReadableStreamLikeConstructor } from './stream-like';
+import {
+  ReadableByteStreamLike,
+  ReadableStreamLike,
+  ReadableStreamLikeBYOBReader,
+  ReadableStreamLikeConstructor,
+  ReadableStreamLikeDefaultReader,
+  ReadableStreamLikeReaderBase
+} from './stream-like';
 import { ReadableStreamWrapper, WrappingReadableSourceOptions } from './wrappers';
 import {
   ReadableByteStreamController,
   ReadableByteStreamStreamUnderlyingSource,
-  ReadableStreamBYOBReader,
   ReadableStreamBYOBRequest,
   ReadableStreamControllerBase,
   ReadableStreamDefaultController,
-  ReadableStreamDefaultReader,
   ReadableStreamDefaultUnderlyingSource,
-  ReadableStreamReaderBase,
   ReadableStreamUnderlyingSource
 } from '@mattiasbuelens/web-streams-polyfill';
 
@@ -70,7 +74,7 @@ const enum ReadableStreamReaderMode {
 class AbstractWrappingReadableStreamSource<R> implements ReadableStreamDefaultUnderlyingSource {
 
   protected readonly _underlyingStream: ReadableStreamLike<R>;
-  protected _underlyingReader: ReadableStreamReaderBase | undefined = undefined;
+  protected _underlyingReader: ReadableStreamLikeReaderBase | undefined = undefined;
   protected _readerMode: ReadableStreamReaderMode | undefined = undefined;
   protected _readableStreamController: ReadableStreamControllerBase<R> = undefined!;
   private _pendingRead: Promise<void> | undefined = undefined;
@@ -104,7 +108,7 @@ class AbstractWrappingReadableStreamSource<R> implements ReadableStreamDefaultUn
     this._attachReader(reader);
   }
 
-  protected _attachReader(reader: ReadableStreamReaderBase): void {
+  protected _attachReader(reader: ReadableStreamLikeReaderBase): void {
     assert(this._underlyingReader === undefined);
 
     this._underlyingReader = reader;
@@ -136,7 +140,7 @@ class AbstractWrappingReadableStreamSource<R> implements ReadableStreamDefaultUn
     this._attachDefaultReader();
 
     // TODO Backpressure?
-    const read = (this._underlyingReader! as ReadableStreamDefaultReader).read()
+    const read = (this._underlyingReader! as ReadableStreamLikeDefaultReader).read()
       .then(({ value, done }) => {
         const controller = this._readableStreamController;
         if (done) {
@@ -245,7 +249,7 @@ class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSou
     const buffer = new Uint8Array(byobRequest.view.byteLength);
 
     // TODO Backpressure?
-    const read = (this._underlyingReader! as ReadableStreamBYOBReader).read(buffer)
+    const read = (this._underlyingReader! as ReadableStreamLikeBYOBReader).read(buffer)
       .then(({ value, done }) => {
         const controller = this._readableStreamController;
         if (done) {

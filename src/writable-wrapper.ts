@@ -1,12 +1,8 @@
 import assert from './assert';
 import { isWritableStream, isWritableStreamConstructor } from './checks';
-import { WritableStreamLike, WritableStreamLikeConstructor } from './stream-like';
+import { WritableStreamLike, WritableStreamLikeConstructor, WritableStreamLikeDefaultWriter } from './stream-like';
 import { WritableStreamWrapper } from './wrappers';
-import {
-  WritableStreamDefaultController,
-  WritableStreamDefaultWriter,
-  WritableStreamUnderlyingSink
-} from '@mattiasbuelens/web-streams-polyfill';
+import { WritableStreamDefaultController, WritableStreamUnderlyingSink } from '@mattiasbuelens/web-streams-polyfill';
 import { noop } from './utils';
 
 export function createWritableStreamWrapper(ctor: WritableStreamLikeConstructor): WritableStreamWrapper {
@@ -38,7 +34,7 @@ const enum WritableStreamState {
 
 class WrappingWritableStreamSink<W> implements WritableStreamUnderlyingSink<W> {
 
-  protected readonly _underlyingWriter: WritableStreamDefaultWriter<W>;
+  protected readonly _underlyingWriter: WritableStreamLikeDefaultWriter<W>;
   private _writableStreamController: WritableStreamDefaultController = undefined!;
   private _pendingWrite: Promise<void> | undefined = undefined;
   private _state: WritableStreamState = WritableStreamState.WRITABLE;
@@ -46,7 +42,7 @@ class WrappingWritableStreamSink<W> implements WritableStreamUnderlyingSink<W> {
   private _errorPromise: Promise<void>;
   private _errorPromiseReject!: (reason: any) => void;
 
-  constructor(underlyingWriter: WritableStreamDefaultWriter<W>) {
+  constructor(underlyingWriter: WritableStreamLikeDefaultWriter<W>) {
     this._underlyingWriter = underlyingWriter;
     this._errorPromise = new Promise<void>((resolve, reject) => {
       this._errorPromiseReject = reject;
