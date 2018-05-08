@@ -1,6 +1,6 @@
 {
-  "name": "web-streams-adapter",
-  "version": "0.0.1",
+  "name": "@mattiasbuelens/web-streams-adapter",
+  "version": "0.0.0",
   "description": "",
   "main": "dist/web-streams-adapter.js",
   "module": "dist/web-streams-adapter.mjs",
