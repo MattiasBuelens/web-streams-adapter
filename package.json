@@ -1,7 +1,7 @@
 {
   "name": "@mattiasbuelens/web-streams-adapter",
   "version": "0.1.0-alpha.1",
-  "description": "",
+  "description": "Adapters for converting between different implementations of WHATWG Streams",
   "main": "dist/web-streams-adapter.js",
   "module": "dist/web-streams-adapter.mjs",
   "types": "types/index.d.ts",
@@ -19,8 +19,8 @@
     "type": "git",
     "url": "git+https://github.com/MattiasBuelens/web-streams-adapter.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Mattias Buelens <mattias@buelens.com>",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/MattiasBuelens/web-streams-adapter/issues"
   },
