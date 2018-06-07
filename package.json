@@ -29,7 +29,7 @@
     "@types/whatwg-streams": "0.0.5"
   },
   "devDependencies": {
-    "@mattiasbuelens/web-streams-polyfill": "^0.1.0-alpha.3",
+    "@mattiasbuelens/web-streams-polyfill": "^0.1.0-alpha.4",
     "@types/minimatch": "^3.0.3",
     "@types/node": "^9.6.7",
     "minimatch": "^3.0.4",
