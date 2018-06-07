@@ -1,16 +1,12 @@
-import {
-  ReadableStreamConstructor,
-  TransformStreamConstructor,
-  WritableStreamConstructor
-} from '@mattiasbuelens/web-streams-polyfill';
+import { ReadableStream, TransformStream, WritableStream } from 'whatwg-streams';
 import { createWrappingReadableStream } from './wrapping-readable-stream';
 import { createWrappingWritableStream } from './wrapping-writable-stream';
 import { createWrappingTransformStream } from './wrapping-transform-stream';
 
 export interface StreamClasses {
-  ReadableStream: ReadableStreamConstructor;
-  WritableStream: WritableStreamConstructor;
-  TransformStream: TransformStreamConstructor;
+  ReadableStream: typeof ReadableStream;
+  WritableStream: typeof WritableStream;
+  TransformStream: typeof TransformStream;
 }
 
 export function createWrappingStreams({ ReadableStream, WritableStream, TransformStream }: StreamClasses): StreamClasses {

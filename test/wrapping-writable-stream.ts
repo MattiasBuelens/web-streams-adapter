@@ -1,16 +1,11 @@
-import {
-  QueuingStrategy,
-  WritableStreamConstructor,
-  WritableStreamDefaultWriter,
-  WritableStreamUnderlyingSink
-} from '@mattiasbuelens/web-streams-polyfill';
+import { QueuingStrategy, WritableStream, WritableStreamDefaultWriter, WritableStreamSink } from 'whatwg-streams';
 import { createWrappingWritableSink } from '../';
 
-export function createWrappingWritableStream(baseClass: WritableStreamConstructor): WritableStreamConstructor {
-  const wrappingClass = class WrappingWritableStream<W = any> extends baseClass {
+export function createWrappingWritableStream(baseClass: typeof WritableStream): typeof WritableStream {
+  const wrappingClass = class WrappingWritableStream<W = any> extends baseClass<W> {
 
-    constructor(underlyingSink: WritableStreamUnderlyingSink<W> = {},
-                strategy: Partial<QueuingStrategy> = {}) {
+    constructor(underlyingSink: WritableStreamSink<W> = {},
+                strategy: QueuingStrategy<W> = {}) {
       const wrappedWritableStream = new baseClass<W>(underlyingSink);
       underlyingSink = createWrappingWritableSink(wrappedWritableStream);
 

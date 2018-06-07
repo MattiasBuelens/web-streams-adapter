@@ -1,8 +1,8 @@
 import assert from './assert';
 import { isWritableStream, isWritableStreamConstructor } from './checks';
-import { WritableStreamLike, WritableStreamLikeConstructor, WritableStreamLikeDefaultWriter } from './stream-like';
+import { WritableStreamDefaultController, WritableStreamDefaultWriter, WritableStreamSink } from 'whatwg-streams';
+import { WritableStreamLike, WritableStreamLikeConstructor } from './stream-like';
 import { WritableStreamWrapper } from './wrappers';
-import { WritableStreamDefaultController, WritableStreamUnderlyingSink } from '@mattiasbuelens/web-streams-polyfill';
 import { noop } from './utils';
 
 export function createWritableStreamWrapper(ctor: WritableStreamLikeConstructor): WritableStreamWrapper {
@@ -17,7 +17,7 @@ export function createWritableStreamWrapper(ctor: WritableStreamLikeConstructor)
   };
 }
 
-export function createWrappingWritableSink<W = any>(writable: WritableStreamLike<W>): WritableStreamUnderlyingSink<W> {
+export function createWrappingWritableSink<W = any>(writable: WritableStreamLike<W>): WritableStreamSink<W> {
   assert(isWritableStream(writable));
   assert(writable.locked === false);
 
@@ -32,9 +32,9 @@ const enum WritableStreamState {
   CLOSED = 'closed'
 }
 
-class WrappingWritableStreamSink<W> implements WritableStreamUnderlyingSink<W> {
+class WrappingWritableStreamSink<W> implements WritableStreamSink<W> {
 
-  protected readonly _underlyingWriter: WritableStreamLikeDefaultWriter<W>;
+  protected readonly _underlyingWriter: WritableStreamDefaultWriter<W>;
   private _writableStreamController: WritableStreamDefaultController = undefined!;
   private _pendingWrite: Promise<void> | undefined = undefined;
   private _state: WritableStreamState = WritableStreamState.WRITABLE;
@@ -42,7 +42,7 @@ class WrappingWritableStreamSink<W> implements WritableStreamUnderlyingSink<W> {
   private _errorPromise: Promise<void>;
   private _errorPromiseReject!: (reason: any) => void;
 
-  constructor(underlyingWriter: WritableStreamLikeDefaultWriter<W>) {
+  constructor(underlyingWriter: WritableStreamDefaultWriter<W>) {
     this._underlyingWriter = underlyingWriter;
     this._errorPromise = new Promise<void>((resolve, reject) => {
       this._errorPromiseReject = reject;

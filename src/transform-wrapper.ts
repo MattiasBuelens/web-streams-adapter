@@ -1,13 +1,12 @@
 import assert from './assert';
 import { isTransformStream, isTransformStreamConstructor } from './checks';
 import {
-  ReadableStreamLikeDefaultReader,
-  TransformStreamLike,
-  TransformStreamLikeConstructor,
-  WritableStreamLikeDefaultWriter
-} from './stream-like';
+  ReadableStreamDefaultReader,
+  TransformStreamDefaultController,
+  WritableStreamDefaultWriter
+} from 'whatwg-streams';
+import { TransformStreamLike, TransformStreamLikeConstructor, TransformStreamTransformer } from './stream-like';
 import { TransformStreamWrapper } from './wrappers';
-import { TransformStreamDefaultController, TransformStreamTransformer } from '@mattiasbuelens/web-streams-polyfill';
 import { noop } from './utils';
 
 export function createTransformStreamWrapper(ctor: TransformStreamLikeConstructor): TransformStreamWrapper {
@@ -29,8 +28,8 @@ export function createWrappingTransformer<I = any, O = any>(transform: Transform
   assert(readable.locked === false);
   assert(writable.locked === false);
 
-  let reader: ReadableStreamLikeDefaultReader<O> = readable.getReader();
-  let writer: WritableStreamLikeDefaultWriter<I>;
+  let reader: ReadableStreamDefaultReader<O> = readable.getReader();
+  let writer: WritableStreamDefaultWriter<I>;
   try {
     writer = writable.getWriter();
   } catch (e) {
@@ -43,14 +42,14 @@ export function createWrappingTransformer<I = any, O = any>(transform: Transform
 
 class WrappingTransformStreamTransformer<I, O> implements TransformStreamTransformer<I, O> {
 
-  private readonly _reader: ReadableStreamLikeDefaultReader<O>;
-  private readonly _writer: WritableStreamLikeDefaultWriter<I>;
+  private readonly _reader: ReadableStreamDefaultReader<O>;
+  private readonly _writer: WritableStreamDefaultWriter<I>;
   private readonly _flushPromise: Promise<void>;
   private _flushResolve!: () => void;
   private _flushReject!: (reason: any) => void;
   private _transformStreamController: TransformStreamDefaultController<O> = undefined!;
 
-  constructor(reader: ReadableStreamLikeDefaultReader<O>, writer: WritableStreamLikeDefaultWriter<I>) {
+  constructor(reader: ReadableStreamDefaultReader<O>, writer: WritableStreamDefaultWriter<I>) {
     this._reader = reader;
     this._writer = writer;
     this._flushPromise = new Promise<void>((resolve, reject) => {
@@ -102,7 +101,7 @@ class WrappingTransformStreamTransformer<I, O> implements TransformStreamTransfo
     this._flushResolve();
     this._transformStreamController.terminate();
 
-    const error = new TypeError('TransformStream terminated');
+    const error = new TypeError('TransformStream terminated') as any;
     this._writer.abort(error).catch(noop);
   };
 

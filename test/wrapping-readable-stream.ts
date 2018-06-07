@@ -1,23 +1,23 @@
 import {
+  PipeOptions,
   QueuingStrategy,
+  ReadableByteStreamSource,
   ReadableStream,
   ReadableStreamBYOBReader,
-  ReadableStreamConstructor,
   ReadableStreamDefaultReader,
-  ReadableStreamPipeOptions,
-  ReadableStreamUnderlyingSource,
-  ReadableWritableStreamPair,
+  ReadableStreamSource,
+  WritableReadablePair,
   WritableStream
-} from '@mattiasbuelens/web-streams-polyfill';
+} from 'whatwg-streams';
 import { createWrappingReadableSource } from '../';
 
-export function createWrappingReadableStream(baseClass: ReadableStreamConstructor): ReadableStreamConstructor {
-  const wrappingClass = class WrappingReadableStream<R = any> extends baseClass {
+export function createWrappingReadableStream(baseClass: typeof ReadableStream): typeof ReadableStream {
+  const wrappingClass = class WrappingReadableStream<R = any> extends baseClass<R> {
 
-    constructor(underlyingSource: ReadableStreamUnderlyingSource<R> = {},
-                strategy: Partial<QueuingStrategy> = {}) {
+    constructor(underlyingSource: ReadableStreamSource<R> | ReadableByteStreamSource<R> = {},
+                strategy: QueuingStrategy<R> = {}) {
       const wrappedReadableStream = new baseClass<R>(underlyingSource, strategy);
-      underlyingSource = createWrappingReadableSource(wrappedReadableStream, { type: underlyingSource.type });
+      underlyingSource = createWrappingReadableSource(wrappedReadableStream as any, { type: (underlyingSource as any).type });
 
       super(underlyingSource);
     }
@@ -30,25 +30,25 @@ export function createWrappingReadableStream(baseClass: ReadableStreamConstructo
       return super.cancel(reason);
     }
 
-    getReader(options: { mode: 'byob' }): ReadableStreamBYOBReader;
-    getReader(options?: { mode?: undefined }): ReadableStreamDefaultReader<R>;
-    getReader(options: { mode?: 'byob' | undefined } = {}): ReadableStreamDefaultReader<R> | ReadableStreamBYOBReader {
-      return super.getReader(options as any);
+    getReader(): ReadableStreamDefaultReader<R>;
+    getReader(options: { mode: 'byob' }): ReadableStreamBYOBReader<R>;
+    getReader(options?: any): ReadableStreamDefaultReader<R> | ReadableStreamBYOBReader<R> {
+      return super.getReader(options);
     }
 
-    pipeThrough<T = any>(pair: ReadableWritableStreamPair<T, R>, options?: ReadableStreamPipeOptions): ReadableStream<T> {
+    pipeThrough<T extends ReadableStream<any>>(pair: WritableReadablePair<WritableStream<R>, T>, options?: PipeOptions): T {
       return super.pipeThrough(pair, options);
     }
 
-    pipeTo(dest: WritableStream<R>, options: ReadableStreamPipeOptions = {}) {
+    pipeTo(dest: WritableStream, options: PipeOptions = {}) {
       return super.pipeTo(dest, options);
     }
 
     tee(): [WrappingReadableStream<R>, WrappingReadableStream<R>] {
       const [branch1, branch2] = super.tee();
 
-      const source1 = createWrappingReadableSource<R>(branch1);
-      const source2 = createWrappingReadableSource<R>(branch2);
+      const source1 = createWrappingReadableSource<R>(branch1 as any);
+      const source2 = createWrappingReadableSource<R>(branch2 as any);
       const wrapped1 = new WrappingReadableStream<R>(source1);
       const wrapped2 = new WrappingReadableStream<R>(source2);
       return [wrapped1, wrapped2];
@@ -57,5 +57,5 @@ export function createWrappingReadableStream(baseClass: ReadableStreamConstructo
 
   Object.defineProperty(wrappingClass, 'name', { value: 'ReadableStream' });
 
-  return wrappingClass as ReadableStreamConstructor;
+  return wrappingClass as typeof ReadableStream;
 }

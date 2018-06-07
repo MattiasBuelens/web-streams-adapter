@@ -1,76 +1,65 @@
 import {
   QueuingStrategy,
-  ReadableStreamUnderlyingSource,
-  TransformStreamTransformer,
-  WritableStreamUnderlyingSink
-} from '@mattiasbuelens/web-streams-polyfill';
+  ReadableByteStreamSource,
+  ReadableStreamBYOBReader,
+  ReadableStreamDefaultReader,
+  ReadableStreamSource,
+  TransformStreamDefaultController,
+  WritableStreamDefaultWriter,
+  WritableStreamSink
+} from 'whatwg-streams';
 
 export interface ReadableStreamLikeConstructor {
-  new<R = any>(underlyingSource?: ReadableStreamUnderlyingSource<R>,
-               strategy?: Partial<QueuingStrategy>): ReadableStreamLike<R>;
+  new<R = any>(underlyingSource?: ReadableStreamSource<R>,
+               strategy?: QueuingStrategy<R>): ReadableStreamLike<R>;
+
+  new<R = ArrayBufferView>(underlyingSource?: ReadableByteStreamSource<R>,
+                           strategy?: QueuingStrategy<R>): ReadableStreamLike<R>;
 }
 
 export interface ReadableStreamLike<R = any> {
   readonly locked: boolean;
 
+  getReader(): ReadableStreamDefaultReader<R>;
+
   // TODO 'byob' mode is available iff underlyingSource extends ReadableByteStreamStreamUnderlyingSource
-  getReader(options: { mode: 'byob' }): ReadableStreamLikeBYOBReader;
-
-  getReader(options?: { mode?: undefined }): ReadableStreamLikeDefaultReader<R>;
+  getReader({ mode }: { mode: 'byob' }): ReadableStreamBYOBReader;
 }
 
-export type ReadableByteStreamLike = ReadableStreamLike<Uint8Array>;
-
-export interface ReadableStreamLikeReaderBase {
-  readonly closed?: Promise<void>;
-
-  cancel(reason: any): Promise<void>;
-
-  releaseLock(): void;
-}
-
-export interface ReadableStreamLikeDefaultReader<R = any> extends ReadableStreamLikeReaderBase {
-  read(): Promise<IteratorResult<R>>;
-}
-
-export interface ReadableStreamLikeBYOBReader extends ReadableStreamLikeReaderBase {
-  read<T extends ArrayBufferView>(view: T): Promise<IteratorResult<T>>;
-}
+export type ReadableByteStreamLike = ReadableStreamLike<ArrayBufferView>;
 
 export interface WritableStreamLikeConstructor {
-  new<W = any>(underlyingSink?: WritableStreamUnderlyingSink<W>,
-               strategy?: Partial<QueuingStrategy>): WritableStreamLike<W>;
+  new<W = any>(underlyingSink?: WritableStreamSink<W>,
+               strategy?: QueuingStrategy<W>): WritableStreamLike<W>;
 }
 
 export interface WritableStreamLike<W = any> {
   readonly locked: boolean;
 
-  getWriter(): WritableStreamLikeDefaultWriter<W>;
+  getWriter(): WritableStreamDefaultWriter<W>;
 }
 
-export interface WritableStreamLikeDefaultWriter<W = any> {
-  readonly closed: Promise<void>;
-  readonly desiredSize: number | null;
-  readonly ready: Promise<void>;
-
-  abort(reason: any): Promise<void>;
-
-  close(): Promise<void>;
-
-  releaseLock(): void;
-
-  write(chunk: W): Promise<void>;
-}
-
-export interface ReadableWritableStreamLikePair<R = any, W = any> {
-  readonly readable: ReadableStreamLike<R>;
-  readonly writable: WritableStreamLike<W>;
+export interface WritableReadableStreamLikePair<W extends WritableStreamLike<any>, R extends ReadableStreamLike<any>> {
+  readonly readable: R;
+  readonly writable: W;
 }
 
 export interface TransformStreamLikeConstructor {
   new<I = any, O = any>(transformer?: TransformStreamTransformer<I, O>,
-                        writableStrategy?: Partial<QueuingStrategy>,
-                        readableStrategy?: Partial<QueuingStrategy>): TransformStreamLike<I, O>;
+                        writableStrategy?: QueuingStrategy<I>,
+                        readableStrategy?: QueuingStrategy<O>): TransformStreamLike<I, O>;
 }
 
-export type TransformStreamLike<I = any, O = any> = ReadableWritableStreamLikePair<O, I>;
+export interface TransformStreamLike<I = any, O = any> extends WritableReadableStreamLikePair<WritableStreamLike<I>, ReadableStreamLike<O>> {
+  readonly readable: ReadableStreamLike<O>;
+  readonly writable: WritableStreamLike<I>;
+}
+
+// TODO Upstream fixed type parameters to @types/whatwg-streams
+export interface TransformStreamTransformer<I = any, O = any> {
+  start?(controller: TransformStreamDefaultController<O>): void | Promise<void>;
+
+  transform?(chunk: I, controller: TransformStreamDefaultController<O>): void | Promise<void>;
+
+  flush?(controller: TransformStreamDefaultController<O>): void | Promise<void>;
+}

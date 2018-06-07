@@ -1,35 +1,33 @@
 import {
   QueuingStrategy,
   ReadableStream,
-  ReadableStreamConstructor,
-  TransformStreamConstructor,
+  TransformStream,
   TransformStreamTransformer,
-  WritableStream,
-  WritableStreamConstructor
-} from '@mattiasbuelens/web-streams-polyfill';
+  WritableStream
+} from 'whatwg-streams';
 import { createWrappingReadableSource, createWrappingTransformer, createWrappingWritableSink } from '../';
 
-export function createWrappingTransformStream(baseClass: TransformStreamConstructor,
-                                              readableClass: ReadableStreamConstructor,
-                                              writableClass: WritableStreamConstructor): TransformStreamConstructor {
-  const wrappingClass = class WrappingTransformStream<I = any, O = any> extends baseClass {
+export function createWrappingTransformStream(baseClass: typeof TransformStream,
+                                              readableClass: typeof ReadableStream,
+                                              writableClass: typeof WritableStream): typeof TransformStream {
+  const wrappingClass = class WrappingTransformStream<R = any, W = any> extends baseClass<R, W> {
 
-    private readonly _wrappedReadable: ReadableStream<O>;
-    private readonly _wrappedWritable: WritableStream<I>;
+    private readonly _wrappedReadable: ReadableStream<R>;
+    private readonly _wrappedWritable: WritableStream<W>;
 
-    constructor(transformer: TransformStreamTransformer<I, O> = {},
-                writableStrategy: Partial<QueuingStrategy> = {},
-                readableStrategy: Partial<QueuingStrategy> = {}) {
-      const wrappedTransformStream = new baseClass<I, O>(transformer);
-      transformer = createWrappingTransformer(wrappedTransformStream);
+    constructor(transformer: TransformStreamTransformer<R, W> = {},
+                writableStrategy: QueuingStrategy<W> = {},
+                readableStrategy: QueuingStrategy<R> = {}) {
+      const wrappedTransformStream = new baseClass<R, W>(transformer);
+      transformer = createWrappingTransformer(wrappedTransformStream as any);
 
       super(transformer);
 
-      const wrappedReadableSource = createWrappingReadableSource(super.readable, { type: transformer.readableType });
-      this._wrappedReadable = new readableClass<O>(wrappedReadableSource, readableStrategy);
+      const wrappedReadableSource = createWrappingReadableSource(super.readable as any, { type: (transformer as any).readableType });
+      this._wrappedReadable = new readableClass<R>(wrappedReadableSource, readableStrategy);
 
       const wrappedWritableSink = createWrappingWritableSink(super.writable);
-      this._wrappedWritable = new writableClass<I>(wrappedWritableSink, writableStrategy);
+      this._wrappedWritable = new writableClass<W>(wrappedWritableSink, writableStrategy);
     }
 
     get readable() {
