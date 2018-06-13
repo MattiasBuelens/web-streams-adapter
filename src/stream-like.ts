@@ -4,7 +4,7 @@ import {
   ReadableStreamBYOBReader,
   ReadableStreamDefaultReader,
   ReadableStreamSource,
-  TransformStreamDefaultController,
+  TransformStreamTransformer,
   WritableStreamDefaultWriter,
   WritableStreamSink
 } from 'whatwg-streams';
@@ -45,21 +45,12 @@ export interface WritableReadableStreamLikePair<W extends WritableStreamLike<any
 }
 
 export interface TransformStreamLikeConstructor {
-  new<I = any, O = any>(transformer?: TransformStreamTransformer<I, O>,
-                        writableStrategy?: QueuingStrategy<I>,
-                        readableStrategy?: QueuingStrategy<O>): TransformStreamLike<I, O>;
+  new<R = any, W = any>(transformer?: TransformStreamTransformer<R, W>,
+                        writableStrategy?: QueuingStrategy<W>,
+                        readableStrategy?: QueuingStrategy<R>): TransformStreamLike<R, W>;
 }
 
-export interface TransformStreamLike<I = any, O = any> extends WritableReadableStreamLikePair<WritableStreamLike<I>, ReadableStreamLike<O>> {
-  readonly readable: ReadableStreamLike<O>;
-  readonly writable: WritableStreamLike<I>;
-}
-
-// TODO Upstream fixed type parameters to @types/whatwg-streams
-export interface TransformStreamTransformer<I = any, O = any> {
-  start?(controller: TransformStreamDefaultController<O>): void | Promise<void>;
-
-  transform?(chunk: I, controller: TransformStreamDefaultController<O>): void | Promise<void>;
-
-  flush?(controller: TransformStreamDefaultController<O>): void | Promise<void>;
+export interface TransformStreamLike<R = any, W = any> extends WritableReadableStreamLikePair<WritableStreamLike<W>, ReadableStreamLike<R>> {
+  readonly readable: ReadableStreamLike<R>;
+  readonly writable: WritableStreamLike<W>;
 }

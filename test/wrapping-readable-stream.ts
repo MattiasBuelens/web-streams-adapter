@@ -40,7 +40,7 @@ export function createWrappingReadableStream(baseClass: typeof ReadableStream): 
       return super.pipeThrough(pair, options);
     }
 
-    pipeTo(dest: WritableStream, options: PipeOptions = {}) {
+    pipeTo(dest: WritableStream<R>, options: PipeOptions = {}) {
       return super.pipeTo(dest, options);
     }
 
