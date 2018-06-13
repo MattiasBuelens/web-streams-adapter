@@ -50,7 +50,8 @@ export interface TransformStreamLikeConstructor {
                         readableStrategy?: QueuingStrategy<R>): TransformStreamLike<R, W>;
 }
 
-export interface TransformStreamLike<R = any, W = any> extends WritableReadableStreamLikePair<WritableStreamLike<W>, ReadableStreamLike<R>> {
+export interface TransformStreamLike<R = any, W = any>
+  extends WritableReadableStreamLikePair<WritableStreamLike<W>, ReadableStreamLike<R>> {
   readonly readable: ReadableStreamLike<R>;
   readonly writable: WritableStreamLike<W>;
 }

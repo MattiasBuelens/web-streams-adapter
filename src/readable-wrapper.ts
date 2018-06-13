@@ -205,7 +205,8 @@ function copyArrayBufferView(from: ArrayBufferView, to: ArrayBufferView) {
   toArray.set(fromArray, 0);
 }
 
-class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSource<ArrayBufferView> implements ReadableByteStreamSource {
+class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSource<ArrayBufferView>
+  implements ReadableByteStreamSource {
 
   protected _readableStreamController!: ReadableByteStreamController;
   protected readonly _supportsByob: boolean;

@@ -22,7 +22,8 @@ export function createTransformStreamWrapper(ctor: TransformStreamLikeConstructo
   };
 }
 
-export function createWrappingTransformer<R = any, W = any>(transform: TransformStreamLike<R, W>): TransformStreamTransformer<R, W> {
+export function createWrappingTransformer<R = any, W = any>(
+  transform: TransformStreamLike<R, W>): TransformStreamTransformer<R, W> {
   assert(isTransformStream(transform));
 
   const { readable, writable } = transform;
