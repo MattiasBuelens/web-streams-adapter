@@ -1,6 +1,6 @@
 {
   "name": "@mattiasbuelens/web-streams-adapter",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Adapters for converting between different implementations of WHATWG Streams",
   "main": "dist/web-streams-adapter",
   "module": "dist/web-streams-adapter.mjs",
