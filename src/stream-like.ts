@@ -10,11 +10,15 @@ import {
 } from 'whatwg-streams';
 
 export interface ReadableStreamLikeConstructor {
-  new<R = any>(underlyingSource?: ReadableStreamSource<R>,
-               strategy?: QueuingStrategy<R>): ReadableStreamLike<R>;
+  new<R extends ArrayBufferView = ArrayBufferView>(
+    underlyingSource?: ReadableByteStreamSource,
+    strategy?: QueuingStrategy<R>
+  ): ReadableStreamLike<R>;
 
-  new<R = ArrayBufferView>(underlyingSource?: ReadableByteStreamSource<R>,
-                           strategy?: QueuingStrategy<R>): ReadableStreamLike<R>;
+  new<R = any>(
+    underlyingSource?: ReadableStreamSource<R> | ReadableByteStreamSource,
+    strategy?: QueuingStrategy<R>
+  ): ReadableStreamLike<R>;
 }
 
 export interface ReadableStreamLike<R = any> {

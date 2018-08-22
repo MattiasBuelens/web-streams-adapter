@@ -35,12 +35,12 @@ export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor)
 
 export function createWrappingReadableSource<R = any>(
   readable: ReadableStreamLike<R>,
-  { type }: WrappingReadableSourceOptions = {}): ReadableStreamSource<R> | ReadableByteStreamSource<R> {
+  { type }: WrappingReadableSourceOptions = {}): ReadableStreamSource<R> | ReadableByteStreamSource {
   assert(isReadableStream(readable));
   assert(readable.locked === false);
 
   type = parseReadableType(type);
-  let source: ReadableStreamSource<R> | ReadableByteStreamSource<R>;
+  let source: ReadableStreamSource<R> | ReadableByteStreamSource;
   if (type === 'bytes') {
     source = new WrappingReadableByteStreamSource(readable as any as ReadableByteStreamLike) as any;
   } else {
@@ -66,10 +66,29 @@ const enum ReadableStreamReaderMode {
   BYOB = 'byob'
 }
 
-type ReadableStreamControllerBase<R> = ReadableStreamDefaultController<R> | ReadableByteStreamController<R>;
+// common interface of ReadableStreamDefaultController<R> and ReadableByteStreamController
+interface ReadableStreamControllerBase<R> {
+  readonly desiredSize: number | null;
+
+  close(): void;
+
+  enqueue(chunk: R): void;
+
+  error(e: any): void;
+}
+
+// common interface of ReadableStreamSource<R> and ReadableByteStreamSource
+interface ReadableStreamSourceBase<R> {
+  start?(controller: ReadableStreamControllerBase<R>): void | Promise<any>;
+
+  pull?(controller: ReadableStreamControllerBase<R>): void | Promise<any>;
+
+  cancel?(reason: any): void | Promise<any>;
+}
+
 type ReadableStreamReaderBase<R> = ReadableStreamDefaultReader<R> | ReadableStreamBYOBReader<R>;
 
-class AbstractWrappingReadableStreamSource<R> implements ReadableStreamSource<R> {
+class AbstractWrappingReadableStreamSource<R> implements ReadableStreamSourceBase<R> {
 
   protected readonly _underlyingStream: ReadableStreamLike<R>;
   protected _underlyingReader: ReadableStreamReaderBase<R> | undefined = undefined;
@@ -185,7 +204,8 @@ class AbstractWrappingReadableStreamSource<R> implements ReadableStreamSource<R>
 
 }
 
-class WrappingReadableStreamDefaultSource<R> extends AbstractWrappingReadableStreamSource<R> {
+class WrappingReadableStreamDefaultSource<R> extends AbstractWrappingReadableStreamSource<R>
+  implements ReadableStreamSource<R> {
 
   protected _readableStreamController!: ReadableStreamDefaultController<R>;
 

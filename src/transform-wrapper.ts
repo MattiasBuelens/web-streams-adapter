@@ -103,7 +103,7 @@ class WrappingTransformStreamTransformer<R, W> implements TransformStreamTransfo
     this._flushResolve();
     this._transformStreamController.terminate();
 
-    const error = new TypeError('TransformStream terminated') as any;
+    const error = new TypeError('TransformStream terminated');
     this._writer.abort(error).catch(noop);
   };
 

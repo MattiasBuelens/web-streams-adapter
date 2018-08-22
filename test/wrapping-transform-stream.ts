@@ -19,12 +19,12 @@ export function createWrappingTransformStream(baseClass: typeof TransformStream,
                 writableStrategy: QueuingStrategy<W> = {},
                 readableStrategy: QueuingStrategy<R> = {}) {
       const wrappedTransformStream = new baseClass<R, W>(transformer);
-      transformer = createWrappingTransformer(wrappedTransformStream as any);
+      transformer = createWrappingTransformer(wrappedTransformStream);
 
       super(transformer);
 
-      const wrappedReadableSource = createWrappingReadableSource(super.readable as any, { type: (transformer as any).readableType });
-      this._wrappedReadable = new readableClass<R>(wrappedReadableSource, readableStrategy);
+      const wrappedReadableSource = createWrappingReadableSource(super.readable, { type: (transformer as any).readableType });
+      this._wrappedReadable = new readableClass<R>(wrappedReadableSource as any, readableStrategy);
 
       const wrappedWritableSink = createWrappingWritableSink(super.writable);
       this._wrappedWritable = new writableClass<W>(wrappedWritableSink, writableStrategy);

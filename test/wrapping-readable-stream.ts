@@ -1,11 +1,9 @@
 import {
   PipeOptions,
   QueuingStrategy,
-  ReadableByteStreamSource,
   ReadableStream,
   ReadableStreamBYOBReader,
   ReadableStreamDefaultReader,
-  ReadableStreamSource,
   WritableReadablePair,
   WritableStream
 } from 'whatwg-streams';
@@ -14,10 +12,10 @@ import { createWrappingReadableSource } from '../';
 export function createWrappingReadableStream(baseClass: typeof ReadableStream): typeof ReadableStream {
   const wrappingClass = class WrappingReadableStream<R = any> extends baseClass<R> {
 
-    constructor(underlyingSource: ReadableStreamSource<R> | ReadableByteStreamSource<R> = {},
+    constructor(underlyingSource: any = {},
                 strategy: QueuingStrategy<R> = {}) {
-      const wrappedReadableStream = new baseClass<R>(underlyingSource, strategy);
-      underlyingSource = createWrappingReadableSource(wrappedReadableStream as any, { type: (underlyingSource as any).type });
+      let wrappedReadableStream = new baseClass<R>(underlyingSource, strategy);
+      underlyingSource = createWrappingReadableSource(wrappedReadableStream, { type: underlyingSource.type });
 
       super(underlyingSource);
     }
@@ -47,8 +45,8 @@ export function createWrappingReadableStream(baseClass: typeof ReadableStream): 
     tee(): [WrappingReadableStream<R>, WrappingReadableStream<R>] {
       const [branch1, branch2] = super.tee();
 
-      const source1 = createWrappingReadableSource<R>(branch1 as any);
-      const source2 = createWrappingReadableSource<R>(branch2 as any);
+      const source1 = createWrappingReadableSource<R>(branch1);
+      const source2 = createWrappingReadableSource<R>(branch2);
       const wrapped1 = new WrappingReadableStream<R>(source1);
       const wrapped2 = new WrappingReadableStream<R>(source2);
       return [wrapped1, wrapped2];
@@ -57,5 +55,5 @@ export function createWrappingReadableStream(baseClass: typeof ReadableStream): 
 
   Object.defineProperty(wrappingClass, 'name', { value: 'ReadableStream' });
 
-  return wrappingClass as typeof ReadableStream;
+  return wrappingClass;
 }
