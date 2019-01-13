@@ -1,15 +1,6 @@
 import assert from './assert';
 import { isReadableStream, isReadableStreamConstructor, supportsByobReader, supportsByteSource } from './checks';
 import { noop } from './utils';
-import {
-  ReadableByteStreamController,
-  ReadableByteStreamSource,
-  ReadableStreamBYOBReader,
-  ReadableStreamBYOBRequest,
-  ReadableStreamDefaultController,
-  ReadableStreamDefaultReader,
-  ReadableStreamSource
-} from 'whatwg-streams';
 import { ReadableByteStreamLike, ReadableStreamLike, ReadableStreamLikeConstructor } from './stream-like';
 import { ReadableStreamWrapper, WrappingReadableSourceOptions } from './wrappers';
 
@@ -35,12 +26,12 @@ export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor)
 
 export function createWrappingReadableSource<R = any>(
   readable: ReadableStreamLike<R>,
-  { type }: WrappingReadableSourceOptions = {}): ReadableStreamSource<R> | ReadableByteStreamSource {
+  { type }: WrappingReadableSourceOptions = {}): UnderlyingSource<R> | UnderlyingByteSource {
   assert(isReadableStream(readable));
   assert(readable.locked === false);
 
   type = parseReadableType(type);
-  let source: ReadableStreamSource<R> | ReadableByteStreamSource;
+  let source: UnderlyingSource<R> | UnderlyingByteSource;
   if (type === 'bytes') {
     source = new WrappingReadableByteStreamSource(readable as any as ReadableByteStreamLike) as any;
   } else {
@@ -86,7 +77,7 @@ interface ReadableStreamSourceBase<R> {
   cancel?(reason: any): void | Promise<any>;
 }
 
-type ReadableStreamReaderBase<R> = ReadableStreamDefaultReader<R> | ReadableStreamBYOBReader<R>;
+type ReadableStreamReaderBase<R> = ReadableStreamDefaultReader<R> | ReadableStreamBYOBReader;
 
 class AbstractWrappingReadableStreamSource<R> implements ReadableStreamSourceBase<R> {
 
@@ -205,7 +196,7 @@ class AbstractWrappingReadableStreamSource<R> implements ReadableStreamSourceBas
 }
 
 class WrappingReadableStreamDefaultSource<R> extends AbstractWrappingReadableStreamSource<R>
-  implements ReadableStreamSource<R> {
+  implements UnderlyingSource<R> {
 
   protected _readableStreamController!: ReadableStreamDefaultController<R>;
 
@@ -226,7 +217,7 @@ function copyArrayBufferView(from: ArrayBufferView, to: ArrayBufferView) {
 }
 
 class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSource<ArrayBufferView>
-  implements ReadableByteStreamSource {
+  implements UnderlyingByteSource {
 
   protected _readableStreamController!: ReadableByteStreamController;
   protected readonly _supportsByob: boolean;

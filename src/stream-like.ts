@@ -1,22 +1,11 @@
-import {
-  QueuingStrategy,
-  ReadableByteStreamSource,
-  ReadableStreamBYOBReader,
-  ReadableStreamDefaultReader,
-  ReadableStreamSource,
-  TransformStreamTransformer,
-  WritableStreamDefaultWriter,
-  WritableStreamSink
-} from 'whatwg-streams';
-
 export interface ReadableStreamLikeConstructor {
   new<R extends ArrayBufferView = ArrayBufferView>(
-    underlyingSource?: ReadableByteStreamSource,
+    underlyingSource?: UnderlyingByteSource,
     strategy?: QueuingStrategy<R>
   ): ReadableStreamLike<R>;
 
   new<R = any>(
-    underlyingSource?: ReadableStreamSource<R> | ReadableByteStreamSource,
+    underlyingSource?: UnderlyingSource<R> | UnderlyingByteSource,
     strategy?: QueuingStrategy<R>
   ): ReadableStreamLike<R>;
 }
@@ -33,7 +22,7 @@ export interface ReadableStreamLike<R = any> {
 export type ReadableByteStreamLike = ReadableStreamLike<ArrayBufferView>;
 
 export interface WritableStreamLikeConstructor {
-  new<W = any>(underlyingSink?: WritableStreamSink<W>,
+  new<W = any>(underlyingSink?: UnderlyingSink<W>,
                strategy?: QueuingStrategy<W>): WritableStreamLike<W>;
 }
 
@@ -49,7 +38,7 @@ export interface WritableReadableStreamLikePair<W extends WritableStreamLike<any
 }
 
 export interface TransformStreamLikeConstructor {
-  new<R = any, W = any>(transformer?: TransformStreamTransformer<R, W>,
+  new<R = any, W = any>(transformer?: Transformer<W, R>,
                         writableStrategy?: QueuingStrategy<W>,
                         readableStrategy?: QueuingStrategy<R>): TransformStreamLike<R, W>;
 }

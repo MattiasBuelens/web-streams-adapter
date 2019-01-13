@@ -1,11 +1,5 @@
 import assert from './assert';
 import { isTransformStream, isTransformStreamConstructor } from './checks';
-import {
-  ReadableStreamDefaultReader,
-  TransformStreamDefaultController,
-  TransformStreamTransformer,
-  WritableStreamDefaultWriter
-} from 'whatwg-streams';
 import { TransformStreamLike, TransformStreamLikeConstructor } from './stream-like';
 import { TransformStreamWrapper } from './wrappers';
 import { noop } from './utils';
@@ -23,7 +17,7 @@ export function createTransformStreamWrapper(ctor: TransformStreamLikeConstructo
 }
 
 export function createWrappingTransformer<R = any, W = any>(
-  transform: TransformStreamLike<R, W>): TransformStreamTransformer<R, W> {
+  transform: TransformStreamLike<R, W>): Transformer<W, R> {
   assert(isTransformStream(transform));
 
   const { readable, writable } = transform;
@@ -42,7 +36,7 @@ export function createWrappingTransformer<R = any, W = any>(
   return new WrappingTransformStreamTransformer<R, W>(reader, writer);
 }
 
-class WrappingTransformStreamTransformer<R, W> implements TransformStreamTransformer<R, W> {
+class WrappingTransformStreamTransformer<R, W> implements Transformer<W, R> {
 
   private readonly _reader: ReadableStreamDefaultReader<R>;
   private readonly _writer: WritableStreamDefaultWriter<W>;

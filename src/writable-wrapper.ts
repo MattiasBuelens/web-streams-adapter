@@ -1,6 +1,5 @@
 import assert from './assert';
 import { isWritableStream, isWritableStreamConstructor } from './checks';
-import { WritableStreamDefaultController, WritableStreamDefaultWriter, WritableStreamSink } from 'whatwg-streams';
 import { WritableStreamLike, WritableStreamLikeConstructor } from './stream-like';
 import { WritableStreamWrapper } from './wrappers';
 import { noop } from './utils';
@@ -17,7 +16,7 @@ export function createWritableStreamWrapper(ctor: WritableStreamLikeConstructor)
   };
 }
 
-export function createWrappingWritableSink<W = any>(writable: WritableStreamLike<W>): WritableStreamSink<W> {
+export function createWrappingWritableSink<W = any>(writable: WritableStreamLike<W>): UnderlyingSink<W> {
   assert(isWritableStream(writable));
   assert(writable.locked === false);
 
@@ -32,7 +31,7 @@ const enum WritableStreamState {
   CLOSED = 'closed'
 }
 
-class WrappingWritableStreamSink<W> implements WritableStreamSink<W> {
+class WrappingWritableStreamSink<W> implements UnderlyingSink<W> {
 
   protected readonly _underlyingWriter: WritableStreamDefaultWriter<W>;
   private _writableStreamController: WritableStreamDefaultController = undefined!;
