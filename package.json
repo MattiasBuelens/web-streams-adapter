@@ -29,14 +29,14 @@
     "@types/whatwg-streams": "^0.0.7"
   },
   "devDependencies": {
-    "@mattiasbuelens/web-streams-polyfill": "^0.1.0",
+    "@mattiasbuelens/web-streams-polyfill": "^0.2.1",
     "@types/minimatch": "^3.0.3",
-    "@types/node": "^9.6.7",
+    "@types/node": "^10.12.18",
     "minimatch": "^3.0.4",
-    "rollup": "^0.58.2",
-    "rollup-plugin-typescript2": "^0.13.0",
-    "ts-node": "^6.0.1",
-    "typescript": "^2.8.3",
-    "wpt-runner": "^2.4.0"
+    "rollup": "^1.1.0",
+    "rollup-plugin-typescript2": "^0.18.1",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.2.2",
+    "wpt-runner": "^2.7.0"
   }
 }
