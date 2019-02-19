@@ -1,23 +1,14 @@
-import {
-  PipeOptions,
-  QueuingStrategy,
-  ReadableStream,
-  ReadableStreamBYOBReader,
-  ReadableStreamDefaultReader,
-  WritableReadablePair,
-  WritableStream
-} from 'whatwg-streams';
 import { createWrappingReadableSource } from '../';
 
 export function createWrappingReadableStream(baseClass: typeof ReadableStream): typeof ReadableStream {
   const wrappingClass = class WrappingReadableStream<R = any> extends baseClass<R> {
 
-    constructor(underlyingSource: any = {},
+    constructor(underlyingSource: UnderlyingSource<R> | UnderlyingByteSource = {},
                 strategy: QueuingStrategy<R> = {}) {
-      let wrappedReadableStream = new baseClass<R>(underlyingSource, strategy);
-      underlyingSource = createWrappingReadableSource(wrappedReadableStream, { type: underlyingSource.type });
+      let wrappedReadableStream = new baseClass<R>(underlyingSource as any, strategy);
+      underlyingSource = createWrappingReadableSource(wrappedReadableStream as any, { type: underlyingSource.type });
 
-      super(underlyingSource);
+      super(underlyingSource as any);
     }
 
     get locked() {
@@ -29,12 +20,12 @@ export function createWrappingReadableStream(baseClass: typeof ReadableStream): 
     }
 
     getReader(): ReadableStreamDefaultReader<R>;
-    getReader(options: { mode: 'byob' }): ReadableStreamBYOBReader<R>;
-    getReader(options?: any): ReadableStreamDefaultReader<R> | ReadableStreamBYOBReader<R> {
+    getReader(options: { mode: 'byob' }): ReadableStreamBYOBReader;
+    getReader(options?: any): ReadableStreamDefaultReader<R> | ReadableStreamBYOBReader {
       return super.getReader(options);
     }
 
-    pipeThrough<T extends ReadableStream<any>>(pair: WritableReadablePair<WritableStream<R>, T>, options?: PipeOptions): T {
+    pipeThrough<T>(pair: { writable: WritableStream<R>, readable: ReadableStream<T> }, options?: PipeOptions): ReadableStream<T> {
       return super.pipeThrough(pair, options);
     }
 

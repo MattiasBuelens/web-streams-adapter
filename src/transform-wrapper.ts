@@ -7,7 +7,7 @@ import { noop } from './utils';
 export function createTransformStreamWrapper(ctor: TransformStreamLikeConstructor): TransformStreamWrapper {
   assert(isTransformStreamConstructor(ctor));
 
-  return <R, W>(transform: TransformStreamLike<R, W>) => {
+  return <I, O>(transform: TransformStreamLike<I, O>) => {
     if (transform.constructor === ctor) {
       return transform;
     }
@@ -16,16 +16,16 @@ export function createTransformStreamWrapper(ctor: TransformStreamLikeConstructo
   };
 }
 
-export function createWrappingTransformer<R = any, W = any>(
-  transform: TransformStreamLike<R, W>): Transformer<W, R> {
+export function createWrappingTransformer<I = any, O = any>(
+  transform: TransformStreamLike<I, O>): Transformer<I, O> {
   assert(isTransformStream(transform));
 
   const { readable, writable } = transform;
   assert(readable.locked === false);
   assert(writable.locked === false);
 
-  let reader: ReadableStreamDefaultReader<R> = readable.getReader();
-  let writer: WritableStreamDefaultWriter<W>;
+  let reader: ReadableStreamDefaultReader<O> = readable.getReader();
+  let writer: WritableStreamDefaultWriter<I>;
   try {
     writer = writable.getWriter();
   } catch (e) {
@@ -33,19 +33,19 @@ export function createWrappingTransformer<R = any, W = any>(
     throw e;
   }
 
-  return new WrappingTransformStreamTransformer<R, W>(reader, writer);
+  return new WrappingTransformStreamTransformer<I, O>(reader, writer);
 }
 
-class WrappingTransformStreamTransformer<R, W> implements Transformer<W, R> {
+class WrappingTransformStreamTransformer<I, O> implements Transformer<I, O> {
 
-  private readonly _reader: ReadableStreamDefaultReader<R>;
-  private readonly _writer: WritableStreamDefaultWriter<W>;
+  private readonly _reader: ReadableStreamDefaultReader<O>;
+  private readonly _writer: WritableStreamDefaultWriter<I>;
   private readonly _flushPromise: Promise<void>;
   private _flushResolve!: () => void;
   private _flushReject!: (reason: any) => void;
-  private _transformStreamController: TransformStreamDefaultController<R> = undefined!;
+  private _transformStreamController: TransformStreamDefaultController<O> = undefined!;
 
-  constructor(reader: ReadableStreamDefaultReader<R>, writer: WritableStreamDefaultWriter<W>) {
+  constructor(reader: ReadableStreamDefaultReader<O>, writer: WritableStreamDefaultWriter<I>) {
     this._reader = reader;
     this._writer = writer;
     this._flushPromise = new Promise<void>((resolve, reject) => {
@@ -54,7 +54,7 @@ class WrappingTransformStreamTransformer<R, W> implements Transformer<W, R> {
     });
   }
 
-  start(controller: TransformStreamDefaultController<R>) {
+  start(controller: TransformStreamDefaultController<O>) {
     this._transformStreamController = controller;
 
     this._reader.read()
@@ -68,7 +68,7 @@ class WrappingTransformStreamTransformer<R, W> implements Transformer<W, R> {
     }
   }
 
-  transform(chunk: W) {
+  transform(chunk: I) {
     return this._writer.write(chunk);
   }
 
@@ -77,7 +77,7 @@ class WrappingTransformStreamTransformer<R, W> implements Transformer<W, R> {
       .then(() => this._flushPromise);
   }
 
-  private _onRead = ({ done, value }: IteratorResult<R>): void | Promise<void> => {
+  private _onRead = ({ done, value }: IteratorResult<O>): void | Promise<void> => {
     if (done) {
       return;
     }

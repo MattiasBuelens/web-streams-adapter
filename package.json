@@ -25,9 +25,6 @@
     "url": "https://github.com/MattiasBuelens/web-streams-adapter/issues"
   },
   "homepage": "https://github.com/MattiasBuelens/web-streams-adapter#readme",
-  "dependencies": {
-    "@types/whatwg-streams": "^0.0.7"
-  },
   "devDependencies": {
     "@mattiasbuelens/web-streams-polyfill": "^0.2.1",
     "@types/minimatch": "^3.0.3",

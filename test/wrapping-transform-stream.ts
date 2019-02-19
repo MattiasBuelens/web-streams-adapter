@@ -1,33 +1,26 @@
-import {
-  QueuingStrategy,
-  ReadableStream,
-  TransformStream,
-  TransformStreamTransformer,
-  WritableStream
-} from 'whatwg-streams';
 import { createWrappingReadableSource, createWrappingTransformer, createWrappingWritableSink } from '../';
 
 export function createWrappingTransformStream(baseClass: typeof TransformStream,
                                               readableClass: typeof ReadableStream,
                                               writableClass: typeof WritableStream): typeof TransformStream {
-  const wrappingClass = class WrappingTransformStream<R = any, W = any> extends baseClass<R, W> {
+  const wrappingClass = class WrappingTransformStream<I = any, O = any> extends baseClass<I, O> {
 
-    private readonly _wrappedReadable: ReadableStream<R>;
-    private readonly _wrappedWritable: WritableStream<W>;
+    private readonly _wrappedReadable: ReadableStream<O>;
+    private readonly _wrappedWritable: WritableStream<I>;
 
-    constructor(transformer: TransformStreamTransformer<R, W> = {},
-                writableStrategy: QueuingStrategy<W> = {},
-                readableStrategy: QueuingStrategy<R> = {}) {
-      const wrappedTransformStream = new baseClass<R, W>(transformer);
-      transformer = createWrappingTransformer(wrappedTransformStream);
+    constructor(transformer: Transformer<I, O> = {},
+                writableStrategy: QueuingStrategy<I> = {},
+                readableStrategy: QueuingStrategy<O> = {}) {
+      const wrappedTransformStream = new baseClass<I, O>(transformer);
+      transformer = createWrappingTransformer<I, O>(wrappedTransformStream);
 
       super(transformer);
 
-      const wrappedReadableSource = createWrappingReadableSource(super.readable, { type: (transformer as any).readableType });
-      this._wrappedReadable = new readableClass<R>(wrappedReadableSource as any, readableStrategy);
+      const wrappedReadableSource = createWrappingReadableSource<O>(super.readable, { type: transformer.readableType });
+      this._wrappedReadable = new readableClass<O>(wrappedReadableSource as any, readableStrategy);
 
-      const wrappedWritableSink = createWrappingWritableSink(super.writable);
-      this._wrappedWritable = new writableClass<W>(wrappedWritableSink, writableStrategy);
+      const wrappedWritableSink = createWrappingWritableSink<I>(super.writable);
+      this._wrappedWritable = new writableClass<I>(wrappedWritableSink, writableStrategy);
     }
 
     get readable() {

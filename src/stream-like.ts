@@ -32,19 +32,13 @@ export interface WritableStreamLike<W = any> {
   getWriter(): WritableStreamDefaultWriter<W>;
 }
 
-export interface WritableReadableStreamLikePair<W extends WritableStreamLike<any>, R extends ReadableStreamLike<any>> {
-  readonly readable: R;
-  readonly writable: W;
-}
-
 export interface TransformStreamLikeConstructor {
-  new<R = any, W = any>(transformer?: Transformer<W, R>,
-                        writableStrategy?: QueuingStrategy<W>,
-                        readableStrategy?: QueuingStrategy<R>): TransformStreamLike<R, W>;
+  new<I = any, O = any>(transformer?: Transformer<I, O>,
+                        writableStrategy?: QueuingStrategy<I>,
+                        readableStrategy?: QueuingStrategy<O>): TransformStreamLike<I, O>;
 }
 
-export interface TransformStreamLike<R = any, W = any>
-  extends WritableReadableStreamLikePair<WritableStreamLike<W>, ReadableStreamLike<R>> {
-  readonly readable: ReadableStreamLike<R>;
-  readonly writable: WritableStreamLike<W>;
+export interface TransformStreamLike<I = any, O = any> {
+  readonly writable: WritableStreamLike<I>;
+  readonly readable: ReadableStreamLike<O>;
 }

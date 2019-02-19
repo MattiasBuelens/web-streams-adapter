@@ -1,10 +1,9 @@
-import { QueuingStrategy, WritableStream, WritableStreamDefaultWriter, WritableStreamSink } from 'whatwg-streams';
 import { createWrappingWritableSink } from '../';
 
 export function createWrappingWritableStream(baseClass: typeof WritableStream): typeof WritableStream {
   const wrappingClass = class WrappingWritableStream<W = any> extends baseClass<W> {
 
-    constructor(underlyingSink: WritableStreamSink<W> = {},
+    constructor(underlyingSink: UnderlyingSink<W> = {},
                 strategy: QueuingStrategy<W> = {}) {
       const wrappedWritableStream = new baseClass<W>(underlyingSink);
       underlyingSink = createWrappingWritableSink(wrappedWritableStream);
