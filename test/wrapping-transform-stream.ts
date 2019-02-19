@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 import { createWrappingReadableSource, createWrappingTransformer, createWrappingWritableSink } from '../';
 
 export function createWrappingTransformStream(baseClass: typeof TransformStream,

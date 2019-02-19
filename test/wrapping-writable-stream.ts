@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 import { createWrappingWritableSink } from '../';
 
 export function createWrappingWritableStream(baseClass: typeof WritableStream): typeof WritableStream {

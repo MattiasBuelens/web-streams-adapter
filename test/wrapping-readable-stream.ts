@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 import { createWrappingReadableSource } from '../';
 
 export function createWrappingReadableStream(baseClass: typeof ReadableStream): typeof ReadableStream {

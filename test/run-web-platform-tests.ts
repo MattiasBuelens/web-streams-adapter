@@ -4,18 +4,12 @@ const path = require('path');
 const wptRunner = require('wpt-runner');
 const minimatch = require('minimatch');
 const { createWrappingStreams } = require('./wrappers');
-const {
-  ReadableStream,
-  WritableStream,
-  ByteLengthQueuingStrategy,
-  CountQueuingStrategy,
-  TransformStream
-} = require('@mattiasbuelens/web-streams-polyfill/ponyfill/es6');
+const WebStreamsPolyfill = require('@mattiasbuelens/web-streams-polyfill/ponyfill/es6');
 const {
   ReadableStream: WrappingReadableStream,
   WritableStream: WrappingWritableStream,
   TransformStream: WrappingTransformStream
-} = createWrappingStreams({ ReadableStream, WritableStream, TransformStream });
+} = createWrappingStreams(WebStreamsPolyfill);
 
 const testsPath = path.resolve(__dirname, '../web-platform-tests/streams');
 
@@ -68,6 +62,6 @@ function setup(window: any) {
   window.ReadableStream = WrappingReadableStream;
   window.WritableStream = WrappingWritableStream;
   window.TransformStream = WrappingTransformStream;
-  window.ByteLengthQueuingStrategy = ByteLengthQueuingStrategy;
-  window.CountQueuingStrategy = CountQueuingStrategy;
+  window.ByteLengthQueuingStrategy = WebStreamsPolyfill.ByteLengthQueuingStrategy;
+  window.CountQueuingStrategy = WebStreamsPolyfill.CountQueuingStrategy;
 }

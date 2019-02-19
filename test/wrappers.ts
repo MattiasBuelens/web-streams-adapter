@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 import { createWrappingReadableStream } from './wrapping-readable-stream';
 import { createWrappingWritableStream } from './wrapping-writable-stream';
 import { createWrappingTransformStream } from './wrapping-transform-stream';

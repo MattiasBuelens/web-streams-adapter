@@ -4,7 +4,6 @@
     "target": "es2015",
     "module": "commonjs",
     "lib": [
-      "dom",
       "es2015"
     ]
   }
