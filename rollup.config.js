@@ -6,7 +6,7 @@ module.exports = {
   input: 'src/index.ts',
   output: [
     {
-      file: pkg.main,
+      file: pkg.main + '.js',
       format: 'umd',
       freeze: false,
       sourcemap: true,
