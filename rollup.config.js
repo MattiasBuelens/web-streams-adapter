@@ -1,8 +1,7 @@
-const path = require('path');
-const rollupTypescript2 = require('rollup-plugin-typescript2');
-
+const { ts, dts } = require('rollup-plugin-dts');
 const pkg = require('./package.json');
-module.exports = {
+
+module.exports = [{
   input: 'src/index.ts',
   output: [
     {
@@ -20,8 +19,21 @@ module.exports = {
     }
   ],
   plugins: [
-    rollupTypescript2({
+    ts({
       tsconfig: 'src/tsconfig.json'
     })
   ]
-};
+}, {
+  input: 'src/index.ts',
+  output: [
+    {
+      file: pkg.types,
+      format: 'es'
+    }
+  ],
+  plugins: [
+    dts({
+      tsconfig: 'src/tsconfig.json'
+    })
+  ]
+}];

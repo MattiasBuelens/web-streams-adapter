@@ -4,15 +4,13 @@
   "description": "Adapters for converting between different implementations of WHATWG Streams",
   "main": "dist/web-streams-adapter",
   "module": "dist/web-streams-adapter.mjs",
-  "types": "types/index.d.ts",
+  "types": "dist/web-streams-adapter.d.ts",
   "files": [
-    "dist/",
-    "types/"
+    "dist/"
   ],
   "scripts": {
-    "build-bundle": "rollup -c",
-    "build-types": "tsc -p ./src/tsconfig.json --emitDeclarationOnly --declaration --declarationDir ./types",
-    "build": "npm run build-bundle && npm run build-types",
+    "build": "rollup -c",
+    "prebuild": "tsc --noEmit -p ./src/tsconfig.json",
     "test": "cd test && ts-node --expose_gc --project tsconfig.json run-web-platform-tests.ts"
   },
   "repository": {
@@ -29,10 +27,11 @@
     "@types/micromatch": "^3.1.0",
     "@types/node": "^10.12.18",
     "micromatch": "^3.1.10",
-    "rollup": "^1.1.0",
-    "rollup-plugin-typescript2": "^0.18.1",
+    "rollup": "^1.2.2",
+    "rollup-plugin-dts": "^0.12.0",
     "ts-node": "^7.0.1",
-    "typescript": "^3.2.2",
+    "tslib": "^1.9.3",
+    "typescript": "^3.3.3",
     "web-streams-polyfill": "^2.0.0",
     "wpt-runner": "^2.7.0"
   }
