@@ -26,14 +26,14 @@
   },
   "homepage": "https://github.com/MattiasBuelens/web-streams-adapter#readme",
   "devDependencies": {
-    "@mattiasbuelens/web-streams-polyfill": "^0.2.1",
-    "@types/minimatch": "^3.0.3",
+    "@types/micromatch": "^3.1.0",
     "@types/node": "^10.12.18",
-    "minimatch": "^3.0.4",
+    "micromatch": "^3.1.10",
     "rollup": "^1.1.0",
     "rollup-plugin-typescript2": "^0.18.1",
     "ts-node": "^7.0.1",
     "typescript": "^3.2.2",
+    "web-streams-polyfill": "^2.0.0",
     "wpt-runner": "^2.7.0"
   }
 }

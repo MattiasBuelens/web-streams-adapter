@@ -2,9 +2,9 @@
 
 const path = require('path');
 const wptRunner = require('wpt-runner');
-const minimatch = require('minimatch');
+const micromatch = require('micromatch');
 const { createWrappingStreams } = require('./wrappers');
-const WebStreamsPolyfill = require('@mattiasbuelens/web-streams-polyfill/ponyfill/es6');
+const WebStreamsPolyfill = require('web-streams-polyfill/ponyfill/es2018');
 const {
   ReadableStream: WrappingReadableStream,
   WritableStream: WrappingWritableStream,
@@ -13,7 +13,14 @@ const {
 
 const testsPath = path.resolve(__dirname, '../web-platform-tests/streams');
 
-const filterGlobs = process.argv.length >= 3 ? process.argv.slice(2) : ['**/*.html'];
+const includedTests = process.argv.length >= 3 ? process.argv.slice(2) : ['**/*.html'];
+const excludedTests = [
+  // We cannot polyfill TransferArrayBuffer yet, so disable tests for detached array buffers
+  // See https://github.com/MattiasBuelens/web-streams-polyfill/issues/3
+  'readable-byte-streams/detached-buffers.any.html'
+];
+const includeMatcher = micromatch.matcher(includedTests);
+const excludeMatcher = micromatch.matcher(excludedTests);
 const workerTestPattern = /\.(?:dedicated|shared|service)worker(?:\.https)?\.html$/;
 
 // HACK: Hide verbose logs
@@ -21,7 +28,8 @@ console.debug = () => {};
 
 function filter(testPath: string): boolean {
   return !workerTestPattern.test(testPath) && // ignore the worker versions
-    filterGlobs.some(glob => minimatch(testPath, glob));
+    includeMatcher(testPath) &&
+    !excludeMatcher(testPath);
 }
 
 // wpt-runner does not yet support unhandled rejection tracking a la
