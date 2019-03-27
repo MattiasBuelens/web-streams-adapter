@@ -1,11 +1,11 @@
 export interface ReadableStreamLikeConstructor {
   new<R extends ArrayBufferView = ArrayBufferView>(
-    underlyingSource?: UnderlyingByteSource,
-    strategy?: QueuingStrategy<R>
+    underlyingSource: UnderlyingByteSource,
+    strategy?: { highWaterMark?: number; size?: undefined; }
   ): ReadableStreamLike<R>;
 
   new<R = any>(
-    underlyingSource?: UnderlyingSource<R> | UnderlyingByteSource,
+    underlyingSource?: UnderlyingSource<R>,
     strategy?: QueuingStrategy<R>
   ): ReadableStreamLike<R>;
 }

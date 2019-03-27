@@ -19,8 +19,8 @@ export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor)
         return readable;
       }
     }
-    const source = createWrappingReadableSource(readable, { type });
-    return new ctor(source);
+    const source = createWrappingReadableSource(readable, { type }) as any;
+    return new ctor<R>(source);
   };
 }
 
