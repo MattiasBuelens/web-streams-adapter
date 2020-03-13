@@ -1,5 +1,6 @@
-const typescript = require('@rollup/plugin-typescript');
-const dts = require('rollup-plugin-dts').default;
+import typescript from '@rollup/plugin-typescript';
+import dts from 'rollup-plugin-dts';
+
 const pkg = require('./package.json');
 
 module.exports = [{
