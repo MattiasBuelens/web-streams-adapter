@@ -24,15 +24,15 @@
   },
   "homepage": "https://github.com/MattiasBuelens/web-streams-adapter#readme",
   "devDependencies": {
-    "@types/micromatch": "^3.1.0",
-    "@types/node": "^10.14.19",
-    "micromatch": "^3.1.10",
-    "rollup": "^1.22.0",
-    "rollup-plugin-dts": "^0.13.0",
-    "ts-node": "^8.4.1",
-    "tslib": "^1.9.3",
-    "typescript": "^3.6.3",
-    "web-streams-polyfill": "^2.0.4",
-    "wpt-runner": "^2.7.1"
+    "@types/micromatch": "^4.0.1",
+    "@types/node": "^10.17.17",
+    "micromatch": "^4.0.2",
+    "rollup": "^2.0.6",
+    "rollup-plugin-dts": "^0.15.1",
+    "ts-node": "^8.6.2",
+    "tslib": "^1.11.1",
+    "typescript": "^3.8.3",
+    "web-streams-polyfill": "^2.1.0",
+    "wpt-runner": "^2.8.0"
   }
 }
