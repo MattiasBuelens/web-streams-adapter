@@ -10,7 +10,6 @@
   ],
   "scripts": {
     "build": "rollup -c",
-    "prebuild": "tsc --noEmit -p ./src/tsconfig.json",
     "test": "cd test && node -r ts-node/register --expose_gc run-web-platform-tests.ts"
   },
   "repository": {
@@ -24,6 +23,7 @@
   },
   "homepage": "https://github.com/MattiasBuelens/web-streams-adapter#readme",
   "devDependencies": {
+    "@rollup/plugin-typescript": "^4.0.0",
     "@types/micromatch": "^4.0.1",
     "@types/node": "^10.17.17",
     "micromatch": "^4.0.2",

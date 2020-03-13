@@ -1,4 +1,5 @@
-const { ts, dts } = require('rollup-plugin-dts');
+const typescript = require('@rollup/plugin-typescript');
+const { dts } = require('rollup-plugin-dts');
 const pkg = require('./package.json');
 
 module.exports = [{
@@ -19,7 +20,7 @@ module.exports = [{
     }
   ],
   plugins: [
-    ts({
+    typescript({
       tsconfig: 'src/tsconfig.json'
     })
   ]
