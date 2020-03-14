@@ -1,15 +1,13 @@
 /// <reference types="node" />
 
 const path = require('path');
+const fs = require('fs');
+const { promisify } = require('util');
 const wptRunner = require('wpt-runner');
 const micromatch = require('micromatch');
+const resolve = require('resolve');
 const { createWrappingStreams } = require('./wrappers');
-const WebStreamsPolyfill = require('web-streams-polyfill/ponyfill/es2018');
-const {
-  ReadableStream: WrappingReadableStream,
-  WritableStream: WrappingWritableStream,
-  TransformStream: WrappingTransformStream
-} = createWrappingStreams(WebStreamsPolyfill);
+const readFileAsync = promisify(fs.readFile);
 
 const testsPath = path.resolve(__dirname, '../web-platform-tests/streams');
 
@@ -26,12 +24,6 @@ const workerTestPattern = /\.(?:dedicated|shared|service)worker(?:\.https)?\.htm
 // HACK: Hide verbose logs
 console.debug = () => {};
 
-function filter(testPath: string): boolean {
-  return !workerTestPattern.test(testPath) && // ignore the worker versions
-    includeMatcher(testPath) &&
-    !excludeMatcher(testPath);
-}
-
 // wpt-runner does not yet support unhandled rejection tracking a la
 // https://github.com/w3c/testharness.js/commit/7716e2581a86dfd9405a9c00547a7504f0c7fe94
 // So we emulate it with Node.js events
@@ -44,8 +36,27 @@ process.on('rejectionHandled', (promise: Promise<any>) => {
   rejections.delete(promise);
 });
 
-wptRunner(testsPath, { rootURL: 'streams/', setup, filter })
-  .then((failures: number) => {
+(async () => {
+  try {
+    const streamsJS = await readFileAsync(resolve.sync('web-streams-polyfill/es2018'), { encoding: 'utf8' });
+
+    const failures: number = await wptRunner(testsPath, {
+      rootURL: 'streams/',
+      setup(window: any) {
+        window.eval(streamsJS);
+        const wrappers = createWrappingStreams(window.WebStreamsPolyfill);
+        window.ReadableStream = wrappers.ReadableStream;
+        window.WritableStream = wrappers.WritableStream;
+        window.TransformStream = wrappers.TransformStream;
+        window.ByteLengthQueuingStrategy = window.WebStreamsPolyfill.ByteLengthQueuingStrategy;
+        window.CountQueuingStrategy = window.WebStreamsPolyfill.CountQueuingStrategy;
+      },
+      filter(testPath: string): boolean {
+        return !workerTestPattern.test(testPath) && // ignore the worker versions
+          includeMatcher(testPath) &&
+          !excludeMatcher(testPath);
+      }
+    });
     process.exitCode = failures;
 
     if (rejections.size > 0) {
@@ -57,19 +68,8 @@ wptRunner(testsPath, { rootURL: 'streams/', setup, filter })
         console.error('Unhandled promise rejection: ', reason.stack);
       }
     }
-  })
-  .catch((e: Error) => {
+  } catch (e) {
     console.error(e.stack);
     process.exitCode = 1;
-  });
-
-function setup(window: any) {
-  // Necessary so that we can send test-realm promises to the jsdom-realm implementation without causing assimilation.
-  window.Promise = Promise;
-
-  window.ReadableStream = WrappingReadableStream;
-  window.WritableStream = WrappingWritableStream;
-  window.TransformStream = WrappingTransformStream;
-  window.ByteLengthQueuingStrategy = WebStreamsPolyfill.ByteLengthQueuingStrategy;
-  window.CountQueuingStrategy = WebStreamsPolyfill.CountQueuingStrategy;
-}
+  }
+})();
