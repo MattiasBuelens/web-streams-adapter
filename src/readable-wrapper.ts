@@ -154,12 +154,12 @@ class AbstractWrappingReadableStreamSource<R> implements ReadableStreamSourceBas
 
     // TODO Backpressure?
     const read = (this._underlyingReader! as ReadableStreamDefaultReader<R>).read()
-      .then(({ value, done }) => {
+      .then(result => {
         const controller = this._readableStreamController;
-        if (done) {
+        if (result.done) {
           this._tryClose();
         } else {
-          controller.enqueue(value);
+          controller.enqueue(result.value);
         }
       });
 
@@ -265,14 +265,14 @@ class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSou
 
     // TODO Backpressure?
     const read = (this._underlyingReader! as ReadableStreamBYOBReader).read(buffer)
-      .then(({ value, done }) => {
+      .then(result => {
         const controller = this._readableStreamController;
-        if (done) {
+        if (result.done) {
           this._tryClose();
           byobRequest.respond(0);
         } else {
-          copyArrayBufferView(value, byobRequest.view);
-          byobRequest.respond(value.byteLength);
+          copyArrayBufferView(result.value, byobRequest.view);
+          byobRequest.respond(result.value.byteLength);
         }
       });
 

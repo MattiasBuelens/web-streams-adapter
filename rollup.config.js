@@ -1,11 +1,13 @@
-const { ts, dts } = require('rollup-plugin-dts');
+import typescript from '@rollup/plugin-typescript';
+import dts from 'rollup-plugin-dts';
+
 const pkg = require('./package.json');
 
 module.exports = [{
   input: 'src/index.ts',
   output: [
     {
-      file: pkg.main + '.js',
+      file: `${pkg.main}.js`,
       format: 'umd',
       freeze: false,
       sourcemap: true,
@@ -19,7 +21,7 @@ module.exports = [{
     }
   ],
   plugins: [
-    ts({
+    typescript({
       tsconfig: 'src/tsconfig.json'
     })
   ]
@@ -32,8 +34,6 @@ module.exports = [{
     }
   ],
   plugins: [
-    dts({
-      tsconfig: 'src/tsconfig.json'
-    })
+    dts()
   ]
 }];

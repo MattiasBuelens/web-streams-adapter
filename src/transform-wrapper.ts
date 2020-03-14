@@ -77,11 +77,11 @@ class WrappingTransformStreamTransformer<I, O> implements Transformer<I, O> {
       .then(() => this._flushPromise);
   }
 
-  private _onRead = ({ done, value }: IteratorResult<O>): void | Promise<void> => {
-    if (done) {
+  private _onRead = (result: ReadableStreamReadResult<O>): void | Promise<void> => {
+    if (result.done) {
       return;
     }
-    this._transformStreamController.enqueue(value);
+    this._transformStreamController.enqueue(result.value);
     return this._reader.read().then(this._onRead);
   };
 
