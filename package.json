@@ -30,6 +30,7 @@
     "micromatch": "^4.0.2",
     "resolve": "^1.17.0",
     "rollup": "^2.7.2",
+    "rollup-plugin-cleanup": "^3.1.1",
     "rollup-plugin-dts": "^1.4.0",
     "ts-node": "^8.9.0",
     "tslib": "^1.11.1",
