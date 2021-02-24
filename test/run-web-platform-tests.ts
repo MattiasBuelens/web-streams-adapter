@@ -1,4 +1,5 @@
 /// <reference types="node" />
+/// <reference path="./vendor/wpt-runner.d.ts" />
 
 import path from 'path';
 import fs from 'fs';
@@ -18,8 +19,8 @@ const excludedTests = [
   // See https://github.com/MattiasBuelens/web-streams-polyfill/issues/3
   'readable-byte-streams/detached-buffers.any.html'
 ];
-const includeMatcher = micromatch.matcher(includedTests);
-const excludeMatcher = micromatch.matcher(excludedTests);
+const includeMatcher = micromatch.matcher(includedTests as any);
+const excludeMatcher = micromatch.matcher(excludedTests as any);
 const workerTestPattern = /\.(?:dedicated|shared|service)worker(?:\.https)?\.html$/;
 
 // HACK: Hide verbose logs
