@@ -1,5 +1,5 @@
 /// <reference lib="dom" />
-import { createWrappingReadableSource } from '../';
+import { createWrappingReadableSource, ReadableStreamBYOBReader, UnderlyingByteSource } from '../';
 
 export function createWrappingReadableStream(baseClass: typeof ReadableStream): typeof ReadableStream {
   const wrappingClass = class WrappingReadableStream<R = any> extends baseClass<R> {
@@ -23,7 +23,7 @@ export function createWrappingReadableStream(baseClass: typeof ReadableStream): 
     getReader(): ReadableStreamDefaultReader<R>;
     getReader(options: { mode: 'byob' }): ReadableStreamBYOBReader;
     getReader(options?: any): ReadableStreamDefaultReader<R> | ReadableStreamBYOBReader {
-      return super.getReader(options);
+      return (super.getReader as any)(options);
     }
 
     pipeThrough<T>(pair: { writable: WritableStream<R>, readable: ReadableStream<T> }, options?: StreamPipeOptions): ReadableStream<T> {
