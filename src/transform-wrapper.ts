@@ -77,7 +77,7 @@ class WrappingTransformStreamTransformer<I, O> implements Transformer<I, O> {
       .then(() => this._flushPromise);
   }
 
-  private _onRead = (result: ReadableStreamReadResult<O>): void | Promise<void> => {
+  private _onRead = (result: ReadableStreamDefaultReadResult<O>): void | Promise<void> => {
     if (result.done) {
       return;
     }
