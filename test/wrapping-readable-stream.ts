@@ -26,11 +26,11 @@ export function createWrappingReadableStream(baseClass: typeof ReadableStream): 
       return super.getReader(options);
     }
 
-    pipeThrough<T>(pair: { writable: WritableStream<R>, readable: ReadableStream<T> }, options?: PipeOptions): ReadableStream<T> {
+    pipeThrough<T>(pair: { writable: WritableStream<R>, readable: ReadableStream<T> }, options?: StreamPipeOptions): ReadableStream<T> {
       return super.pipeThrough(pair, options);
     }
 
-    pipeTo(dest: WritableStream<R>, options: PipeOptions = {}) {
+    pipeTo(dest: WritableStream<R>, options: StreamPipeOptions = {}) {
       return super.pipeTo(dest, options);
     }
 
