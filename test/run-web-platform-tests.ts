@@ -1,12 +1,13 @@
 /// <reference types="node" />
 
-const path = require('path');
-const fs = require('fs');
-const { promisify } = require('util');
-const wptRunner = require('wpt-runner');
-const micromatch = require('micromatch');
-const resolve = require('resolve');
-const { createWrappingStreams } = require('./wrappers');
+import path from 'path';
+import fs from 'fs';
+import { promisify } from 'util';
+import wptRunner from 'wpt-runner';
+import micromatch from 'micromatch';
+import resolve from 'resolve';
+import { createWrappingStreams } from './wrappers';
+
 const readFileAsync = promisify(fs.readFile);
 
 const testsPath = path.resolve(__dirname, '../web-platform-tests/streams');
