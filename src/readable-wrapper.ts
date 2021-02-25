@@ -4,15 +4,20 @@ import { noop } from './utils';
 import {
   ReadableByteStreamController,
   ReadableByteStreamLike,
+  ReadableByteStreamLikeConstructor,
   ReadableStreamBYOBReader,
   ReadableStreamBYOBRequest,
   ReadableStreamLike,
   ReadableStreamLikeConstructor,
   UnderlyingByteSource
 } from './stream-like';
-import { ReadableStreamWrapper, WrappingReadableSourceOptions } from './wrappers';
+import { ReadableByteStreamWrapper, ReadableStreamWrapper, WrappingReadableSourceOptions } from './wrappers';
 
-export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor): ReadableStreamWrapper {
+export function createReadableStreamWrapper(ctor: ReadableByteStreamLikeConstructor): ReadableByteStreamWrapper;
+export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor): ReadableStreamWrapper;
+export function createReadableStreamWrapper(
+  ctor: ReadableStreamLikeConstructor | ReadableByteStreamLikeConstructor
+): ReadableStreamWrapper {
   assert(isReadableStreamConstructor(ctor));
 
   const byteSourceSupported = supportsByteSource(ctor);
@@ -27,21 +32,30 @@ export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor)
         return readable;
       }
     }
-    const source = createWrappingReadableSource(readable, { type }) as any;
+    const source = createWrappingReadableSource(readable, { type });
     return new ctor<R>(source);
   };
 }
 
+export function createWrappingReadableSource(
+  readable: ReadableByteStreamLike,
+  options: { type: 'bytes' }
+): UnderlyingByteSource;
 export function createWrappingReadableSource<R = any>(
   readable: ReadableStreamLike<R>,
-  { type }: WrappingReadableSourceOptions = {}): UnderlyingSource<R> | UnderlyingByteSource {
+  options?: WrappingReadableSourceOptions
+): UnderlyingSource<R>;
+export function createWrappingReadableSource<R = any>(
+  readable: ReadableStreamLike<R>,
+  { type }: WrappingReadableSourceOptions = {}
+): UnderlyingSource<R> | UnderlyingByteSource {
   assert(isReadableStream(readable));
   assert(readable.locked === false);
 
   type = parseReadableType(type);
   let source: UnderlyingSource<R> | UnderlyingByteSource;
   if (type === 'bytes') {
-    source = new WrappingReadableByteStreamSource(readable as any as ReadableByteStreamLike) as any;
+    source = new WrappingReadableByteStreamSource(readable as unknown as ReadableByteStreamLike);
   } else {
     source = new WrappingReadableStreamDefaultSource<R>(readable);
   }
