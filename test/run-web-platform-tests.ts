@@ -46,12 +46,13 @@ process.on('rejectionHandled', (promise: Promise<any>) => {
       rootURL: 'streams/',
       setup(window: any) {
         window.eval(streamsJS);
-        const wrappers = createWrappingStreams(window.WebStreamsPolyfill);
+        const polyfill = window.WebStreamsPolyfill as typeof import('web-streams-polyfill');
+        const wrappers = createWrappingStreams(polyfill as any);
         window.ReadableStream = wrappers.ReadableStream;
         window.WritableStream = wrappers.WritableStream;
         window.TransformStream = wrappers.TransformStream;
-        window.ByteLengthQueuingStrategy = window.WebStreamsPolyfill.ByteLengthQueuingStrategy;
-        window.CountQueuingStrategy = window.WebStreamsPolyfill.CountQueuingStrategy;
+        window.ByteLengthQueuingStrategy = polyfill.ByteLengthQueuingStrategy;
+        window.CountQueuingStrategy = polyfill.CountQueuingStrategy;
       },
       filter(testPath: string): boolean {
         return !workerTestPattern.test(testPath) && // ignore the worker versions

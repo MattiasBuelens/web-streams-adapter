@@ -7,7 +7,7 @@ export function createWrappingReadableStream(baseClass: typeof ReadableStream): 
     constructor(underlyingSource: UnderlyingSource<R> | UnderlyingByteSource = {},
                 strategy: QueuingStrategy<R> = {}) {
       let wrappedReadableStream = new baseClass<R>(underlyingSource as any, strategy);
-      underlyingSource = createWrappingReadableSource(wrappedReadableStream as any, { type: underlyingSource.type });
+      underlyingSource = createWrappingReadableSource(wrappedReadableStream, { type: underlyingSource.type });
 
       super(underlyingSource as any);
     }
