@@ -1,4 +1,4 @@
-import { ReadableStreamLike, TransformStreamLike, WritableStreamLike } from './stream-like';
+import { ReadableByteStreamLike, ReadableStreamLike, TransformStreamLike, WritableStreamLike } from './stream-like';
 
 export interface WrappingReadableSourceOptions {
   type?: 'bytes';
@@ -6,6 +6,12 @@ export interface WrappingReadableSourceOptions {
 
 export type ReadableStreamWrapper = <R>(readable: ReadableStreamLike<R>,
                                         options?: WrappingReadableSourceOptions) => ReadableStreamLike<R>;
+
+export interface ReadableByteStreamWrapper {
+  (readable: ReadableByteStreamLike, options: { type: 'bytes' }): ReadableByteStreamLike;
+
+  <R>(readable: ReadableStreamLike<R>, options?: WrappingReadableSourceOptions): ReadableStreamLike<R>;
+}
 
 export type TransformStreamWrapper = <I, O>(Transform: TransformStreamLike<I, O>) => TransformStreamLike<I, O>;
 

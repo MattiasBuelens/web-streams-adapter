@@ -1,4 +1,11 @@
 export interface ReadableStreamLikeConstructor {
+  new<R = any>(
+    underlyingSource?: UnderlyingSource<R>,
+    strategy?: QueuingStrategy<R>
+  ): ReadableStreamLike<R>;
+}
+
+export interface ReadableByteStreamLikeConstructor extends ReadableStreamLikeConstructor {
   new(
     underlyingSource: UnderlyingByteSource,
     strategy?: { highWaterMark?: number; size?: undefined; }
@@ -19,7 +26,6 @@ export interface ReadableStreamLike<R = any> {
 export interface ReadableByteStreamLike extends ReadableStreamLike<ArrayBufferView> {
   getReader(): ReadableStreamDefaultReader<ArrayBufferView>;
 
-  // TODO 'byob' mode is available iff underlyingSource extends ReadableByteStreamStreamUnderlyingSource
   getReader({ mode }: { mode: 'byob' }): ReadableStreamBYOBReader;
 }
 
