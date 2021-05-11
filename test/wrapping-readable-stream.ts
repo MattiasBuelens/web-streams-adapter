@@ -1,5 +1,10 @@
 /// <reference lib="dom" />
-import { createWrappingReadableSource, ReadableStreamBYOBReader, UnderlyingByteSource } from '../';
+import {
+  createWrappingReadableSource,
+  ReadableByteStreamLike,
+  ReadableStreamBYOBReader,
+  UnderlyingByteSource
+} from '../';
 
 export function createWrappingReadableStream(baseClass: typeof ReadableStream): typeof ReadableStream {
   const wrappingClass = class WrappingReadableStream<R = any> extends baseClass<R> {
@@ -7,7 +12,11 @@ export function createWrappingReadableStream(baseClass: typeof ReadableStream): 
     constructor(underlyingSource: UnderlyingSource<R> | UnderlyingByteSource = {},
                 strategy: QueuingStrategy<R> = {}) {
       let wrappedReadableStream = new baseClass<R>(underlyingSource as any, strategy);
-      underlyingSource = createWrappingReadableSource(wrappedReadableStream, { type: underlyingSource.type });
+      if (underlyingSource.type === 'bytes') {
+        underlyingSource = createWrappingReadableSource(wrappedReadableStream as unknown as ReadableByteStreamLike, { type: 'bytes' });
+      } else {
+        underlyingSource = createWrappingReadableSource(wrappedReadableStream);
+      }
 
       super(underlyingSource as any);
     }

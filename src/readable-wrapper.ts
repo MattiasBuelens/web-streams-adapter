@@ -11,7 +11,7 @@ import {
   ReadableStreamLikeConstructor,
   UnderlyingByteSource
 } from './stream-like';
-import { ReadableByteStreamWrapper, ReadableStreamWrapper, WrappingReadableSourceOptions } from './wrappers';
+import { ReadableByteStreamWrapper, ReadableStreamWrapper } from './wrappers';
 
 export function createReadableStreamWrapper(ctor: ReadableByteStreamLikeConstructor): ReadableByteStreamWrapper;
 export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor): ReadableStreamWrapper;
@@ -22,7 +22,7 @@ export function createReadableStreamWrapper(
 
   const byteSourceSupported = supportsByteSource(ctor);
 
-  return <R>(readable: ReadableStreamLike<R>, { type }: WrappingReadableSourceOptions = {}) => {
+  return <R>(readable: ReadableStreamLike<R>, { type }: { type?: 'bytes' } = {}) => {
     type = parseReadableType(type);
     if (type === 'bytes' && !byteSourceSupported) {
       type = undefined;
@@ -32,8 +32,13 @@ export function createReadableStreamWrapper(
         return readable;
       }
     }
-    const source = createWrappingReadableSource(readable, { type });
-    return new ctor<R>(source);
+    if (type === 'bytes') {
+      const source = createWrappingReadableSource(readable as unknown as ReadableByteStreamLike, { type });
+      return new (ctor as ReadableByteStreamLikeConstructor)(source) as unknown as ReadableStreamLike<R>;
+    } else {
+      const source = createWrappingReadableSource<R>(readable);
+      return new ctor<R>(source);
+    }
   };
 }
 
@@ -43,11 +48,11 @@ export function createWrappingReadableSource(
 ): UnderlyingByteSource;
 export function createWrappingReadableSource<R = any>(
   readable: ReadableStreamLike<R>,
-  options?: WrappingReadableSourceOptions
+  options?: { type?: undefined }
 ): UnderlyingSource<R>;
 export function createWrappingReadableSource<R = any>(
   readable: ReadableStreamLike<R>,
-  { type }: WrappingReadableSourceOptions = {}
+  { type }: { type?: 'bytes' } = {}
 ): UnderlyingSource<R> | UnderlyingByteSource {
   assert(isReadableStream(readable));
   assert(readable.locked === false);
