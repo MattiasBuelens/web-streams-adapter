@@ -1,5 +1,10 @@
 /// <reference lib="dom" />
-import { createWrappingReadableSource } from '../';
+import {
+  createWrappingReadableSource,
+  ReadableByteStreamLike,
+  ReadableStreamBYOBReader,
+  UnderlyingByteSource
+} from '../';
 
 export function createWrappingReadableStream(baseClass: typeof ReadableStream): typeof ReadableStream {
   const wrappingClass = class WrappingReadableStream<R = any> extends baseClass<R> {
@@ -7,7 +12,11 @@ export function createWrappingReadableStream(baseClass: typeof ReadableStream): 
     constructor(underlyingSource: UnderlyingSource<R> | UnderlyingByteSource = {},
                 strategy: QueuingStrategy<R> = {}) {
       let wrappedReadableStream = new baseClass<R>(underlyingSource as any, strategy);
-      underlyingSource = createWrappingReadableSource(wrappedReadableStream as any, { type: underlyingSource.type });
+      if (underlyingSource.type === 'bytes') {
+        underlyingSource = createWrappingReadableSource(wrappedReadableStream as unknown as ReadableByteStreamLike, { type: 'bytes' });
+      } else {
+        underlyingSource = createWrappingReadableSource(wrappedReadableStream);
+      }
 
       super(underlyingSource as any);
     }
@@ -23,14 +32,14 @@ export function createWrappingReadableStream(baseClass: typeof ReadableStream): 
     getReader(): ReadableStreamDefaultReader<R>;
     getReader(options: { mode: 'byob' }): ReadableStreamBYOBReader;
     getReader(options?: any): ReadableStreamDefaultReader<R> | ReadableStreamBYOBReader {
-      return super.getReader(options);
+      return (super.getReader as any)(options);
     }
 
-    pipeThrough<T>(pair: { writable: WritableStream<R>, readable: ReadableStream<T> }, options?: PipeOptions): ReadableStream<T> {
+    pipeThrough<T>(pair: { writable: WritableStream<R>, readable: ReadableStream<T> }, options?: StreamPipeOptions): ReadableStream<T> {
       return super.pipeThrough(pair, options);
     }
 
-    pipeTo(dest: WritableStream<R>, options: PipeOptions = {}) {
+    pipeTo(dest: WritableStream<R>, options: StreamPipeOptions = {}) {
       return super.pipeTo(dest, options);
     }
 

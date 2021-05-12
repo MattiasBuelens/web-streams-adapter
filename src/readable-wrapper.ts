@@ -1,15 +1,28 @@
 import assert from './assert';
 import { isReadableStream, isReadableStreamConstructor, supportsByobReader, supportsByteSource } from './checks';
 import { noop } from './utils';
-import { ReadableByteStreamLike, ReadableStreamLike, ReadableStreamLikeConstructor } from './stream-like';
-import { ReadableStreamWrapper, WrappingReadableSourceOptions } from './wrappers';
+import {
+  ReadableByteStreamController,
+  ReadableByteStreamLike,
+  ReadableByteStreamLikeConstructor,
+  ReadableStreamBYOBReader,
+  ReadableStreamBYOBRequest,
+  ReadableStreamLike,
+  ReadableStreamLikeConstructor,
+  UnderlyingByteSource
+} from './stream-like';
+import { ReadableByteStreamWrapper, ReadableStreamWrapper } from './wrappers';
 
-export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor): ReadableStreamWrapper {
+export function createReadableStreamWrapper(ctor: ReadableByteStreamLikeConstructor): ReadableByteStreamWrapper;
+export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor): ReadableStreamWrapper;
+export function createReadableStreamWrapper(
+  ctor: ReadableStreamLikeConstructor | ReadableByteStreamLikeConstructor
+): ReadableStreamWrapper {
   assert(isReadableStreamConstructor(ctor));
 
   const byteSourceSupported = supportsByteSource(ctor);
 
-  return <R>(readable: ReadableStreamLike<R>, { type }: WrappingReadableSourceOptions = {}) => {
+  return <R>(readable: ReadableStreamLike<R>, { type }: { type?: 'bytes' } = {}) => {
     type = parseReadableType(type);
     if (type === 'bytes' && !byteSourceSupported) {
       type = undefined;
@@ -19,21 +32,35 @@ export function createReadableStreamWrapper(ctor: ReadableStreamLikeConstructor)
         return readable;
       }
     }
-    const source = createWrappingReadableSource(readable, { type }) as any;
-    return new ctor<R>(source);
+    if (type === 'bytes') {
+      const source = createWrappingReadableSource(readable as unknown as ReadableByteStreamLike, { type });
+      return new (ctor as ReadableByteStreamLikeConstructor)(source) as unknown as ReadableStreamLike<R>;
+    } else {
+      const source = createWrappingReadableSource<R>(readable);
+      return new ctor<R>(source);
+    }
   };
 }
 
+export function createWrappingReadableSource(
+  readable: ReadableByteStreamLike,
+  options: { type: 'bytes' }
+): UnderlyingByteSource;
 export function createWrappingReadableSource<R = any>(
   readable: ReadableStreamLike<R>,
-  { type }: WrappingReadableSourceOptions = {}): UnderlyingSource<R> | UnderlyingByteSource {
+  options?: { type?: undefined }
+): UnderlyingSource<R>;
+export function createWrappingReadableSource<R = any>(
+  readable: ReadableStreamLike<R>,
+  { type }: { type?: 'bytes' } = {}
+): UnderlyingSource<R> | UnderlyingByteSource {
   assert(isReadableStream(readable));
   assert(readable.locked === false);
 
   type = parseReadableType(type);
   let source: UnderlyingSource<R> | UnderlyingByteSource;
   if (type === 'bytes') {
-    source = new WrappingReadableByteStreamSource(readable as any as ReadableByteStreamLike) as any;
+    source = new WrappingReadableByteStreamSource(readable as unknown as ReadableByteStreamLike);
   } else {
     source = new WrappingReadableStreamDefaultSource<R>(readable);
   }
@@ -219,6 +246,7 @@ function copyArrayBufferView(from: ArrayBufferView, to: ArrayBufferView) {
 class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSource<ArrayBufferView>
   implements UnderlyingByteSource {
 
+  declare protected readonly _underlyingStream: ReadableByteStreamLike;
   protected _readableStreamController!: ReadableByteStreamController;
   protected readonly _supportsByob: boolean;
 
@@ -248,7 +276,7 @@ class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSou
   pull(): Promise<void> {
     if (this._supportsByob) {
       const byobRequest = this._readableStreamController.byobRequest;
-      if (byobRequest !== undefined) {
+      if (byobRequest) {
         return this._pullWithByobRequest(byobRequest);
       }
     }
@@ -261,7 +289,7 @@ class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSou
 
     // reader.read(view) detaches the input view, therefore we cannot pass byobRequest.view directly
     // create a separate buffer to read into, then copy that to byobRequest.view
-    const buffer = new Uint8Array(byobRequest.view.byteLength);
+    const buffer = new Uint8Array(byobRequest.view!.byteLength);
 
     // TODO Backpressure?
     const read = (this._underlyingReader! as ReadableStreamBYOBReader).read(buffer)
@@ -271,7 +299,7 @@ class WrappingReadableByteStreamSource extends AbstractWrappingReadableStreamSou
           this._tryClose();
           byobRequest.respond(0);
         } else {
-          copyArrayBufferView(result.value, byobRequest.view);
+          copyArrayBufferView(result.value, byobRequest.view!);
           byobRequest.respond(result.value.byteLength);
         }
       });

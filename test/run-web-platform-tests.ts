@@ -1,24 +1,34 @@
 /// <reference types="node" />
+/// <reference path="./vendor/wpt-runner.d.ts" />
+/// <reference path="./vendor/ungap-promise-all-settled.d.ts" />
 
-const path = require('path');
-const fs = require('fs');
-const { promisify } = require('util');
-const wptRunner = require('wpt-runner');
-const micromatch = require('micromatch');
-const resolve = require('resolve');
-const { createWrappingStreams } = require('./wrappers');
+import path from 'path';
+import fs from 'fs';
+import { promisify } from 'util';
+import wptRunner from 'wpt-runner';
+import micromatch from 'micromatch';
+import resolve from 'resolve';
+import { createWrappingStreams } from './wrappers';
+import allSettled from '@ungap/promise-all-settled';
+
 const readFileAsync = promisify(fs.readFile);
+const queueMicrotask = global.queueMicrotask || ((fn: () => void) => Promise.resolve().then(fn));
 
-const testsPath = path.resolve(__dirname, '../web-platform-tests/streams');
+const wptPath = path.resolve(__dirname, '../web-platform-tests');
+const testsPath = path.resolve(wptPath, 'streams');
 
 const includedTests = process.argv.length >= 3 ? process.argv.slice(2) : ['**/*.html'];
 const excludedTests = [
   // We cannot polyfill TransferArrayBuffer yet, so disable tests for detached array buffers
   // See https://github.com/MattiasBuelens/web-streams-polyfill/issues/3
-  'readable-byte-streams/detached-buffers.any.html'
+  'readable-byte-streams/detached-buffers.any.html',
+  // Disable tests for different size functions per realm, since they need a working <iframe>
+  'queuing-strategies-size-function-per-global.window.html',
+  // We don't implement transferable streams
+  'transferable/**'
 ];
-const includeMatcher = micromatch.matcher(includedTests);
-const excludeMatcher = micromatch.matcher(excludedTests);
+const includeMatcher = micromatch.matcher(includedTests as any);
+const excludeMatcher = micromatch.matcher(excludedTests as any);
 const workerTestPattern = /\.(?:dedicated|shared|service)worker(?:\.https)?\.html$/;
 
 // HACK: Hide verbose logs
@@ -43,13 +53,28 @@ process.on('rejectionHandled', (promise: Promise<any>) => {
     const failures: number = await wptRunner(testsPath, {
       rootURL: 'streams/',
       setup(window: any) {
+        window.queueMicrotask = queueMicrotask;
+        window.Promise.allSettled = allSettled;
+        window.fetch = async function (url: string) {
+          const filePath = path.join(wptPath, url);
+          if (!filePath.startsWith(wptPath)) {
+            throw new TypeError('Invalid URL');
+          }
+          return {
+            ok: true,
+            async text() {
+              return await readFileAsync(filePath, { encoding: 'utf8' });
+            }
+          };
+        };
         window.eval(streamsJS);
-        const wrappers = createWrappingStreams(window.WebStreamsPolyfill);
+        const polyfill = window.WebStreamsPolyfill as typeof import('web-streams-polyfill');
+        const wrappers = createWrappingStreams(polyfill as any);
         window.ReadableStream = wrappers.ReadableStream;
         window.WritableStream = wrappers.WritableStream;
         window.TransformStream = wrappers.TransformStream;
-        window.ByteLengthQueuingStrategy = window.WebStreamsPolyfill.ByteLengthQueuingStrategy;
-        window.CountQueuingStrategy = window.WebStreamsPolyfill.CountQueuingStrategy;
+        window.ByteLengthQueuingStrategy = polyfill.ByteLengthQueuingStrategy;
+        window.CountQueuingStrategy = polyfill.CountQueuingStrategy;
       },
       filter(testPath: string): boolean {
         return !workerTestPattern.test(testPath) && // ignore the worker versions

@@ -1,6 +1,7 @@
 import { typeIsObject } from './utils';
 import {
   ReadableByteStreamLike,
+  ReadableByteStreamLikeConstructor,
   ReadableStreamLike,
   ReadableStreamLikeConstructor,
   TransformStreamLike,
@@ -93,7 +94,7 @@ export function isTransformStreamConstructor(ctor: any): ctor is TransformStream
 
 export function supportsByobReader<R>(readable: ReadableStreamLike<R>): boolean {
   try {
-    const reader = (readable as any as ReadableByteStreamLike).getReader({ mode: 'byob' });
+    const reader = (readable as unknown as ReadableByteStreamLike).getReader({ mode: 'byob' });
     reader.releaseLock();
     return true;
   } catch {
@@ -101,9 +102,9 @@ export function supportsByobReader<R>(readable: ReadableStreamLike<R>): boolean 
   }
 }
 
-export function supportsByteSource<R>(ctor: ReadableStreamLikeConstructor): boolean {
+export function supportsByteSource<R>(ctor: ReadableStreamLikeConstructor): ctor is ReadableByteStreamLikeConstructor {
   try {
-    new ctor({ type: 'bytes' });
+    new (ctor as ReadableByteStreamLikeConstructor)({ type: 'bytes' });
     return true;
   } catch {
     return false;
