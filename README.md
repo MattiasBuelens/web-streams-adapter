@@ -13,12 +13,12 @@ await readable.pipeTo(writable); // TypeError: Object doesn't support property o
 
 This is because although many browsers have already started implementing streams,
 most of them are not yet fully up-to-date with the latest specification:
-* Chrome 59 supports `ReadableStream` and `WritableStream`,
-  and `TransformStream` [will arrive in Chrome 67][ts-chrome-status].
-  Readable byte streams are [not yet supported][byte-stream-chrome-bug].
-* Firefox 57 supports `ReadableStream`, but only behind an experimental flag.
-* Edge 16 supports `ReadableStream`, but does not yet support developer-created streams using `new ReadableStream`.
-  `WritableStream` however is fully supported.
+* Chrome 67 [supports][ts-chrome-status] `ReadableStream`, `WritableStream` and `TransformStream`.
+  Readable byte streams are [supported][byte-stream-chrome-status] as of Chrome 89.
+  However, async iteration is [not yet supported][async-iterator-crbug].
+* Edge 89 has the same support as Chrome 89.
+* Firefox 65 supports `ReadableStream`, but no readable byte streams or writable streams yet.
+  As such, methods like `pipeTo()` and `pipeThrough()` that take a `WritableStream` are not yet supported either.
 * Safari supports `ReadableStream`, but no readable byte streams or writable streams.
 
 For up-to-date information, check [caniuse.com][caniuse]
@@ -64,7 +64,8 @@ using primitive reader and writer APIs on the given stream.
 
 [spec]: https://streams.spec.whatwg.org/
 [ts-chrome-status]: https://www.chromestatus.com/feature/5466425791610880
-[byte-stream-chrome-bug]: https://bugs.chromium.org/p/chromium/issues/detail?id=614302
+[byte-stream-chrome-status]: https://chromestatus.com/feature/4535319661641728
+[async-iterator-crbug]: https://crbug.com/929585
 [caniuse]: https://www.caniuse.com/#feat=streams
 [rs-compat]: https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream#Browser_Compatibility
 [ws-compat]: https://developer.mozilla.org/en-US/docs/Web/API/WritableStream#Browser_Compatibility
