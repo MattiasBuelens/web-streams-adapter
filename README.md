@@ -27,7 +27,7 @@ and the browser compatibility tables on MDN for [`ReadableStream`][rs-compat] an
 ## What?
 `web-streams-adapter` provides adapter functions that take any readable/writable/transform stream
 and wraps it into a different readable/writable/stream with a different (more complete) implementation of your choice,
-for example [`web-streams-polyfill`][creatorrr-polyfill].
+for example [web-streams-polyfill].
 ```js
 // setup
 import { ReadableStream as PolyfillReadableStream } from 'web-streams-polyfill';
@@ -69,4 +69,4 @@ using primitive reader and writer APIs on the given stream.
 [caniuse]: https://www.caniuse.com/#feat=streams
 [rs-compat]: https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream#Browser_Compatibility
 [ws-compat]: https://developer.mozilla.org/en-US/docs/Web/API/WritableStream#Browser_Compatibility
-[creatorrr-polyfill]: https://github.com/creatorrr/web-streams-polyfill
+[web-streams-polyfill]: https://github.com/MattiasBuelens/web-streams-polyfill
