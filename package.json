@@ -33,7 +33,7 @@
     "@ungap/promise-all-settled": "^1.1.2",
     "micromatch": "^4.0.4",
     "resolve": "^1.20.0",
-    "rollup": "^2.47.0",
+    "rollup": "^3.29.5",
     "rollup-plugin-cleanup": "^3.2.1",
     "rollup-plugin-dts": "^3.0.1",
     "ts-node": "^9.1.1",
